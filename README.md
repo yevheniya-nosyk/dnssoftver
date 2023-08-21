@@ -9,6 +9,7 @@ Below is the list of the supported DNS software and versions:
 | Software | Role | Supported Versions | Installation type | Notes |
 |-|-|-|-|-|
 | [BIND9](https://www.isc.org/bind/) | Recursive | `9.18.0`, `9.19.0` | Docker | <ul><li>[Source code since version 9.0.0](https://downloads.isc.org/isc/bind9/)</li> <li>[CHANGELOG](https://gitlab.isc.org/isc-projects/bind9/-/blob/main/CHANGES)</li><li>[How to build and run named](https://kb.isc.org/docs/aa-00768)</li></ul> |
+| [Windows Server](https://www.microsoft.com/en-us/windows-server) | Recursive | `2019`, `2016`, `2022` | VPS | | 
 
 ## Prerequisites 
 
@@ -33,9 +34,25 @@ $ docker ps
 $ docker ps -a
 ```
 
+### Environment variables
+
+Create a `.env` file in the root of this repository and gradually add variables there. The file is not tracked by git.
+
 ## Installation
 
-### Docker
+### Windows Server
+
+We rent 3 virtual private servers with the following operating systems: Windows Server 2022, Windows Server 2019, Windows Server 2016. Add the corresponding IP addresses to the `.env` file under `WS_IP_2022`, `WS_IP_2019`, `WS_IP_2016`.
+
+To configure, go to: Server Manager -> Dashboard -> Add roles and features -> Role-based or feature-based installation -> Select a server from the server pool -> DNS server -> Install.
+
+Check that it works by sending a simple recursive query to the server's IP address:
+
+```bash
+$ dig @<server_ip> google.com
+```
+
+### Other software
 
 Directory `software/<vendor>/<version>/` contains `Dockerfile`s  used to install and run most of the DNS software.
 
