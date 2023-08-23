@@ -8,7 +8,7 @@ Below is the list of the supported DNS software and versions:
 
 | Software | Role | Supported Versions | Installation type | Notes |
 |-|-|-|-|-|
-| [BIND9](https://www.isc.org/bind/) | Recursive | `9.12.0`, `9.13.0`, `9.14.0`, `9.15.0`, `9.16.0`, `9.17.0`, `9.18.0-9.18.18`, `9.19.0-9.19.16` | Docker | <ul><li>[Source code since version 9.0.0](https://downloads.isc.org/isc/bind9/)</li><li>[BIND 9 Significant Features Matrix](https://kb.isc.org/docs/aa-01310)</li><li>[CHANGELOG](https://gitlab.isc.org/isc-projects/bind9/-/blob/main/CHANGES)</li><li>[How to build and run named](https://kb.isc.org/docs/aa-00768)</li></ul> |
+| [BIND9](https://www.isc.org/bind/) | Recursive | `9.12.0`, `9.13.0`, `9.14.0`, `9.15.0`, `9.16.0`, `9.17.0-9.17.22`, `9.18.0-9.18.18`, `9.19.0-9.19.16` | Docker | <ul><li>[Source code since version 9.0.0](https://downloads.isc.org/isc/bind9/)</li><li>[BIND 9 Significant Features Matrix](https://kb.isc.org/docs/aa-01310)</li><li>[CHANGELOG](https://gitlab.isc.org/isc-projects/bind9/-/blob/main/CHANGES)</li><li>[How to build and run named](https://kb.isc.org/docs/aa-00768)</li></ul> |
 | [Windows Server](https://www.microsoft.com/en-us/windows-server) | Recursive | `2016 Standard`, `2019 Standard`, `2022 Standard` | VPS | | 
 
 ## Prerequisites 
