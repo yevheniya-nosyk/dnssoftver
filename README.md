@@ -9,6 +9,7 @@ Below is the list of the supported DNS software and versions:
 | Software | Role | Supported Versions | Installation type | Notes |
 |-|-|-|-|-|
 | [BIND9](https://www.isc.org/bind/) | Recursive | `9.12.0-9.12.4rc1`, `9.13.0-9.13.7`, `9.14.0-9.14.12`, `9.15.0-9.15.8`, `9.16.0-9.16.43`, `9.17.0-9.17.22`, `9.18.0-9.18.18`, `9.19.0-9.19.16` | Docker | <ul><li>[Source code since version 9.0.0](https://downloads.isc.org/isc/bind9/)</li><li>[BIND 9 Significant Features Matrix](https://kb.isc.org/docs/aa-01310)</li><li>[CHANGELOG](https://gitlab.isc.org/isc-projects/bind9/-/blob/main/CHANGES)</li><li>[How to build and run named](https://kb.isc.org/docs/aa-00768)</li></ul> |
+| [Unbound](https://www.nlnetlabs.nl/projects/unbound/about/) | Recursive | `1.17.0-1.17.1rc2` | Docker | <ul><li>[Source code](https://www.nlnetlabs.nl/downloads/unbound/)</li><li>[Source code and CHANGELOGs](https://www.nlnetlabs.nl/projects/unbound/download/)</li></ul> |
 | [Windows Server](https://www.microsoft.com/en-us/windows-server) | Recursive | `2016 Standard`, `2019 Standard`, `2022 Standard` | VPS | | 
 
 ## Prerequisites 
