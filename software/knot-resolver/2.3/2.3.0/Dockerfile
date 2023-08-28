@@ -17,7 +17,7 @@ RUN cd /usr/bin/knot-resolver-2.3.0 && make && make install
 # Listen on the IPv4 interface
 RUN sed -i "s/-- net = { '127.0.0.1', '::1' }/net.listen('0.0.0.0', 53, { kind = 'dns' })/g" /usr/local/etc/knot-resolver/config.personal
 RUN sed -i "/user('knot-resolver', 'knot-resolver')/d" /usr/local/etc/knot-resolver/config.personal
-RUN sed -i "s#root.keys#usr/bin/knot-resolver-2.3.0/distro/common/root.keys#" /usr/local/etc/knot-resolver/config.personal
+RUN sed -i "s#root.keys#/usr/bin/knot-resolver-2.3.0/distro/common/root.keys#" /usr/local/etc/knot-resolver/config.personal
 
 # Expose ports
 EXPOSE 53/udp 53/tcp
