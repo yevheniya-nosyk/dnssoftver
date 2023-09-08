@@ -1,5 +1,6 @@
 import logging
 import docker
+import dotenv
 import os 
 
 def get_work_dir():
@@ -65,10 +66,33 @@ def stop_and_remove_containers(containers_list):
         container.remove()
 
 
+def get_targets(containers_list, network_custom):
+    """Generate IP addresses to scan together with software names"""
+
+    # Extract image name and IP addresses of each running container
+    # Store as a list of tuples
+    targets = list()
+    for container in containers_list:
+        container.reload()
+        container_ip = container.attrs["NetworkSettings"]["Networks"][network_custom]["IPAddress"]
+        container_image = container.attrs["Config"]["Image"]
+        targets.append((container_image, container_ip))
+
+    # Additionally, get IP addresses of machines running Windows Server
+    targets.append(("windows-server:2022",os.getenv("WS_IP_2022")))
+    targets.append(("windows-server:2019",os.getenv("WS_IP_2019")))
+    targets.append(("windows-server:2016",os.getenv("WS_IP_2016")))
+
+    return targets
+
+
 if __name__ == '__main__':
 
     # Get the working directory
     work_dir = get_work_dir()
+
+    # Load the .env file
+    dotenv.load_dotenv()
 
     # Configure logging
     logging.basicConfig(filename=f"{work_dir}/logging.log", level=logging.INFO, format='%(asctime)s %(name)s %(processName)s %(threadName)s %(levelname)s:%(message)s')
@@ -84,6 +108,10 @@ if __name__ == '__main__':
 
     # Run containers
     containers = run_containers(images_list=images, network_custom=fpdns_network.name)
+
+    # Generate targets to scan (software, IP)
+    # This includes containers + Windows machines
+    targets = get_targets(containers_list=containers, network_custom=fpdns_network.name)
 
     # Stop and remove containers
     stop_and_remove_containers(containers_list=containers)
