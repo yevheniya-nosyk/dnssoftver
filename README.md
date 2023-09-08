@@ -45,6 +45,16 @@ $ docker ps -a
 
 Create a `.env` file in the root of this repository and gradually add variables there. The file is not tracked by git.
 
+### Python
+
+Create the virutal environment and install the requirements:
+
+```bash
+$ python3 -m virtualenv -p python3 .venv
+$ source .venv/bin/activate
+$ pip3 install -r requirements.txt
+```
+
 ## Installation
 
 ### Windows Server
