@@ -47,17 +47,21 @@ def run_containers(images_list, network_custom):
     # Store the container objects
     containers = list()
     for image in images_list:
-        container_new = client.containers.run(image=image, network = network_custom, detach=True)
+        logging.info("Starting the %s container", image)
+        container_new = client.containers.run(image=image, network = network_custom, detach=True, tty=True)
         containers.append(container_new)
 
     return containers
+
 
 def stop_and_remove_containers(containers_list):
     """Stop and remove all our containers running DNS software"""
 
     # Stop and remove each container one by one
     for container in containers_list:
+        logging.info("Stopping the %s container", container.image)
         container.stop()
+        logging.info("Removing the %s container", container.image)
         container.remove()
 
 
