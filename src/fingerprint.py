@@ -48,3 +48,9 @@ if __name__ == '__main__':
 
     # Build Docker images
     get_images(docker_client=client, work_dir_path=work_dir)
+
+    # Create a Docker network for this project
+    fpdns_network = client.networks.create(name="fpdns")
+
+    # Remove the Docker network
+    fpdns_network.remove()
