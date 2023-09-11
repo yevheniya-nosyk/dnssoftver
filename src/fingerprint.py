@@ -1,6 +1,10 @@
+import collections
+import testcases
 import logging
 import docker
 import dotenv
+import time
+import json
 import os 
 
 def get_work_dir():
@@ -112,6 +116,19 @@ if __name__ == '__main__':
     # Generate targets to scan (software, IP)
     # This includes containers + Windows machines
     targets = get_targets(containers_list=containers, network_custom=fpdns_network.name)
+
+    # Let all the programs inside containers start
+    time.sleep(30)
+    
+    # Execute queries and store results for each software vendor inside the results dictionnary
+    results = collections.defaultdict(dict)
+    for target_to_scan in targets:
+        signature = testcases.test_1(target=target_to_scan[1], domain=os.getenv("DOMAIN"))
+        results[target_to_scan[0]]["test_1"] = signature
+
+    # Save the results
+    with open(f"{work_dir}/signatures/signatures.json", "w") as f: 
+        json.dump(results,f)
 
     # Stop and remove containers
     stop_and_remove_containers(containers_list=containers)

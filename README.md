@@ -55,6 +55,12 @@ $ source .venv/bin/activate
 $ pip3 install -r requirements.txt
 ```
 
+We rely on `dnspython` to generate DNS packets and analyze responses. However, the current version of the library does not print the counts (`QDCOUNT`, `ANCOUNT`, `NSCOUNT`, `ARCOUNT`). Please apply the patch described [here](https://github.com/rthalley/dnspython/pull/677) so that we get access to those values.
+
+### Domain name
+
+We need a custom domain to be queried during our cases. Please register such a domain and save it under `DOMAIN` variable inside `.env`.
+
 ## Installation
 
 ### Windows Server
@@ -87,3 +93,13 @@ $ docker stop <container_id> && docker rm <container_id>
 # Delete the image
 $ docker rmi <your_image_name>
 ```
+
+## Signature generation
+
+The script below builds docker images, starts containers in their own network, queries resolvers, processes the responses, generates signatures, and cleans up. Run it:
+
+```bash
+$ python3 src/fingerprint.py
+```
+
+The signatures are stored in `signatures/signatures.json`.
