@@ -3,9 +3,15 @@ import testcases
 import logging
 import docker
 import dotenv
+import random
+import string
 import time
 import json
 import os 
+
+def random_string():
+    """Returns a 6-character random string"""
+    return ''.join(random.choice(string.ascii_lowercase + string.digits) for _ in range(6))
 
 def get_work_dir():
     """Find the path to the project's work directory"""
@@ -124,6 +130,7 @@ if __name__ == '__main__':
     results = collections.defaultdict(dict)
     for target_to_scan in targets:
         results[target_to_scan[0]]["test_1"] = testcases.test_1(target=target_to_scan[1], domain=os.getenv("DOMAIN"))
+        results[target_to_scan[0]]["test_2"] = testcases.test_2(target=target_to_scan[1], domain=f"{random_string()}.{os.getenv('DOMAIN')}")
 
     # Save the results
     with open(f"{work_dir}/signatures/signatures.json", "w") as f: 
