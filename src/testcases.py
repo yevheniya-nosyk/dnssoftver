@@ -85,3 +85,17 @@ def test_3(target, domain):
 
     return signature
 
+def test_4(target, domain):
+    """Test case 4: a reqursive query for an experimental non-existing resource record for an unsigned domain without EDNS0"""
+
+    # Issue a query
+    qname = dns.name.from_text(text=domain)
+    query = dns.message.make_query(qname=qname, rdtype=dns.rdatatype.NULL, flags=dns.flags.from_text("RD"))
+    query.set_opcode(dns.opcode.QUERY)
+    response = dns.query.udp(q=query, where=target, timeout=5)
+
+    # Parse the response to generate the signature
+    signature = parse_response_header(signature=get_signature(),response=response)
+
+    return signature
+
