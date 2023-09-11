@@ -131,6 +131,7 @@ if __name__ == '__main__':
     for target_to_scan in targets:
         results[target_to_scan[0]]["test_1"] = testcases.test_1(target=target_to_scan[1], domain=os.getenv("DOMAIN"))
         results[target_to_scan[0]]["test_2"] = testcases.test_2(target=target_to_scan[1], domain=f"{random_string()}.{os.getenv('DOMAIN')}")
+        results[target_to_scan[0]]["test_3"] = testcases.test_3(target=target_to_scan[1], domain=os.getenv("DOMAIN"))
 
     # Save the results
     with open(f"{work_dir}/signatures/signatures.json", "w") as f: 
