@@ -123,8 +123,7 @@ if __name__ == '__main__':
     # Execute queries and store results for each software vendor inside the results dictionnary
     results = collections.defaultdict(dict)
     for target_to_scan in targets:
-        signature = testcases.test_1(target=target_to_scan[1], domain=os.getenv("DOMAIN"))
-        results[target_to_scan[0]]["test_1"] = signature
+        results[target_to_scan[0]]["test_1"] = testcases.test_1(target=target_to_scan[1], domain=os.getenv("DOMAIN"))
 
     # Save the results
     with open(f"{work_dir}/signatures/signatures.json", "w") as f: 
