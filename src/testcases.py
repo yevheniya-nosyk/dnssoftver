@@ -4,8 +4,18 @@ import random
 import string
 
 def non_existing_domain():
-    """Returns a randomly generated SLD under .com"""
-    return "".join(random.choice(string.ascii_lowercase + string.digits) for _ in range(12)) + ".com"
+    """Generate a non-existing SLD under .com"""
+    while True:
+        domain = "".join(random.choice(string.ascii_lowercase + string.digits) for _ in range(12)) + ".com"
+        try:
+            # Try to resolve it locally
+            dns.resolver.resolve(domain, "A")
+        except dns.exception.Timeout:
+            continue
+        except dns.resolver.NXDOMAIN:
+            break
+
+    return domain
 
 def get_signature():
     """Generate an empty signature dictionnary"""
@@ -81,15 +91,7 @@ def test_nx_no_flags(target):
     """
 
     # Generate a non-existing domain
-    while True:
-        domain = non_existing_domain()
-        try:
-            # Try to resolve it locally
-            dns.resolver.resolve(domain, "A")
-        except dns.exception.Timeout:
-            continue
-        except dns.resolver.NXDOMAIN:
-            break
+    domain = non_existing_domain()
 
     # Build a query
     query = dns.message.make_query(qname=dns.name.from_text(text=domain), rdtype=dns.rdatatype.A, flags=0)
@@ -137,15 +139,7 @@ def test_nx_tc(target):
     """
 
     # Generate a non-existing domain
-    while True:
-        domain = non_existing_domain()
-        try:
-            # Try to resolve it locally
-            dns.resolver.resolve(domain, "A")
-        except dns.exception.Timeout:
-            continue
-        except dns.resolver.NXDOMAIN:
-            break
+    domain = non_existing_domain()
 
     # Build a query
     query = dns.message.make_query(qname=dns.name.from_text(text=domain), rdtype=dns.rdatatype.A, flags=dns.flags.from_text("TC"))
@@ -171,15 +165,7 @@ def test_nx_ad(target):
     """
 
     # Generate a non-existing domain
-    while True:
-        domain = non_existing_domain()
-        try:
-            # Try to resolve it locally
-            dns.resolver.resolve(domain, "A")
-        except dns.exception.Timeout:
-            continue
-        except dns.resolver.NXDOMAIN:
-            break
+    domain = non_existing_domain()
 
     # Build a query
     query = dns.message.make_query(qname=dns.name.from_text(text=domain), rdtype=dns.rdatatype.A, flags=dns.flags.from_text("AD"))
