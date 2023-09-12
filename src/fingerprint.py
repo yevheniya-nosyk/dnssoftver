@@ -129,7 +129,7 @@ if __name__ == '__main__':
     # Execute queries and store results for each software vendor inside the results dictionnary
     results = collections.defaultdict(dict)
     for target_to_scan in targets:
-        results[target_to_scan[0]]["test_1"] = testcases.test_1(target=target_to_scan[1], domain=os.getenv("DOMAIN"))
+        results[target_to_scan[0]]["test_baseline"] = testcases.test_baseline(target=target_to_scan[1], domain=os.getenv("DOMAIN"))
         results[target_to_scan[0]]["test_6"] = testcases.test_6(target=target_to_scan[1])
         results[target_to_scan[0]]["test_7"] = testcases.test_7(target=target_to_scan[1], domain=os.getenv("DOMAIN"))
 
