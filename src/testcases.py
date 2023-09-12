@@ -1,5 +1,11 @@
 import dns.resolver
 import dns.flags
+import random
+import string
+
+def random_string():
+    """Returns a 6-character random string"""
+    return ''.join(random.choice(string.ascii_lowercase + string.digits) for _ in range(6))
 
 def get_signature():
     """Generate an empty signature dictionnary"""
@@ -113,3 +119,27 @@ def test_5(target, domain):
 
     return signature
 
+def test_6(target):
+    """Test case 6: query a non-existing domain non-recursively"""
+
+    # Find a non-existing domain name
+    while True:
+        domain = f"{random_string()}.com"
+        try:
+            dns.resolver.resolve(domain, "A")
+        except dns.resolver.NXDOMAIN:
+            break
+
+    # Issue a query
+    qname = dns.name.from_text(text=domain)
+    query = dns.message.make_query(qname=qname, rdtype=dns.rdatatype.A, flags=0)
+    query.set_opcode(dns.opcode.QUERY)
+
+    try:
+        response = dns.query.udp(q=query, where=target, timeout=5)
+        # Parse the response to generate the signature
+        signature = parse_response_header(signature=get_signature(),response=response)
+    except dns.exception.Timeout:
+        signature = {"error": "Timeout"}
+
+    return signature
