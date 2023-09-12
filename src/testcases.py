@@ -63,61 +63,6 @@ def test_1(target, domain):
 
     return signature
 
-def test_2(target, domain):
-    """Test case 2: a reqursive query for a non-existing unsigned domain without EDNS0"""
-
-    # Issue a query
-    qname = dns.name.from_text(text=domain)
-    query = dns.message.make_query(qname=qname, rdtype=dns.rdatatype.A, flags=dns.flags.from_text("RD"))
-    query.set_opcode(dns.opcode.QUERY)
-    response = dns.query.udp(q=query, where=target, timeout=5)
-
-    # Parse the response to generate the signature
-    signature = parse_response_header(signature=get_signature(),response=response)
-
-    return signature
-
-def test_3(target, domain):
-    """Test case 3: a reqursive query for a non-existing resource record for an unsigned domain without EDNS0"""
-
-    # Issue a query
-    qname = dns.name.from_text(text=domain)
-    query = dns.message.make_query(qname=qname, rdtype=dns.rdatatype.TXT, flags=dns.flags.from_text("RD"))
-    query.set_opcode(dns.opcode.QUERY)
-    response = dns.query.udp(q=query, where=target, timeout=5)
-
-    # Parse the response to generate the signature
-    signature = parse_response_header(signature=get_signature(),response=response)
-
-    return signature
-
-def test_4(target, domain):
-    """Test case 4: a reqursive query for an experimental non-existing resource record for an unsigned domain without EDNS0"""
-
-    # Issue a query
-    qname = dns.name.from_text(text=domain)
-    query = dns.message.make_query(qname=qname, rdtype=dns.rdatatype.NULL, flags=dns.flags.from_text("RD"))
-    query.set_opcode(dns.opcode.QUERY)
-    response = dns.query.udp(q=query, where=target, timeout=5)
-
-    # Parse the response to generate the signature
-    signature = parse_response_header(signature=get_signature(),response=response)
-
-    return signature
-
-def test_5(target, domain):
-    """Test case 5: a reqursive query for the newest non-existing resource record for an unsigned domain without EDNS0"""
-
-    # Issue a query
-    qname = dns.name.from_text(text=domain)
-    query = dns.message.make_query(qname=qname, rdtype=dns.rdatatype.ZONEMD, flags=dns.flags.from_text("RD"))
-    query.set_opcode(dns.opcode.QUERY)
-    response = dns.query.udp(q=query, where=target, timeout=5)
-
-    # Parse the response to generate the signature
-    signature = parse_response_header(signature=get_signature(),response=response)
-
-    return signature
 
 def test_6(target):
     """Test case 6: query a non-existing domain non-recursively"""
@@ -143,6 +88,7 @@ def test_6(target):
         signature = {"error": "Timeout"}
 
     return signature
+
 
 def test_7(target, domain):
     """Test case 7: a non-reqursive query for an unsigned domain without EDNS0 with QR=1"""
