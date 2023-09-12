@@ -130,8 +130,8 @@ if __name__ == '__main__':
     results = collections.defaultdict(dict)
     for target_to_scan in targets:
         results[target_to_scan[0]]["test_baseline"] = testcases.test_baseline(target=target_to_scan[1], domain=os.getenv("DOMAIN"))
-        results[target_to_scan[0]]["test_6"] = testcases.test_6(target=target_to_scan[1])
-        results[target_to_scan[0]]["test_7"] = testcases.test_7(target=target_to_scan[1], domain=os.getenv("DOMAIN"))
+        results[target_to_scan[0]]["test_nx_no_flags"] = testcases.test_nx_no_flags(target=target_to_scan[1])
+        results[target_to_scan[0]]["test_is_response"] = testcases.test_is_response(target=target_to_scan[1], domain=os.getenv("DOMAIN"))
 
     # Save the results
     with open(f"{work_dir}/signatures/signatures.json", "w") as f: 

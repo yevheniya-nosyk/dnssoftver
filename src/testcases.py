@@ -3,9 +3,9 @@ import dns.flags
 import random
 import string
 
-def random_string():
-    """Returns a 6-character random string"""
-    return ''.join(random.choice(string.ascii_lowercase + string.digits) for _ in range(6))
+def non_existing_domain():
+    """Returns a randomly generated SLD under .com"""
+    return "".join(random.choice(string.ascii_lowercase + string.digits) for _ in range(12)) + ".com"
 
 def get_signature():
     """Generate an empty signature dictionnary"""
@@ -71,25 +71,32 @@ def test_baseline(target, domain):
     return signature
 
 
-def test_6(target):
-    """Test case 6: query a non-existing domain non-recursively"""
+def test_nx_no_flags(target):
+    """
+    Query non-recursively a non-existing subdomain:
 
-    # Find a non-existing domain name
+    - Opcode: Query
+    - Flags:
+    - Question: <non_existing_domain> A
+    """
+
+    # Generate a non-existing domain
     while True:
-        domain = f"{random_string()}.com"
+        domain = non_existing_domain()
         try:
+            # Try to resolve it locally
             dns.resolver.resolve(domain, "A")
+        except dns.exception.Timeout:
+            continue
         except dns.resolver.NXDOMAIN:
             break
 
-    # Issue a query
-    qname = dns.name.from_text(text=domain)
-    query = dns.message.make_query(qname=qname, rdtype=dns.rdatatype.A, flags=0)
+    # Build a query
+    query = dns.message.make_query(qname=dns.name.from_text(text=domain), rdtype=dns.rdatatype.A, flags=0)
     query.set_opcode(dns.opcode.QUERY)
-
+    # Send a query and generate a signature
     try:
         response = dns.query.udp(q=query, where=target, timeout=5)
-        # Parse the response to generate the signature
         signature = parse_response_header(signature=get_signature(),response=response)
     except dns.exception.Timeout:
         signature = {"error": "Timeout"}
@@ -97,17 +104,22 @@ def test_6(target):
     return signature
 
 
-def test_7(target, domain):
-    """Test case 7: a non-reqursive query for an unsigned domain without EDNS0 with QR=1"""
+def test_is_response(target, domain):
+    """
+    Send a query with response flag set:
 
-    # Issue a query
-    qname = dns.name.from_text(text=domain)
-    query = dns.message.make_query(qname=qname, rdtype=dns.rdatatype.A, flags=dns.flags.from_text("QR"))
+    - Opcode: Query
+    - Flags: QR
+    - Question: <custom_domain> A
+
+    """
+
+    # Build a query
+    query = dns.message.make_query(qname=dns.name.from_text(text=domain), rdtype=dns.rdatatype.A, flags=dns.flags.from_text("QR"))
     query.set_opcode(dns.opcode.QUERY)
-
+    # Send a query and generate a signature
     try:
         response = dns.query.udp(q=query, where=target, timeout=5)
-        # Parse the response to generate the signature
         signature = parse_response_header(signature=get_signature(),response=response)
     except dns.exception.Timeout:
         signature = {"error": "Timeout"}
