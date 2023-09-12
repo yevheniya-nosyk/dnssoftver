@@ -17,6 +17,9 @@ def get_images(docker_client, work_dir_path):
 
     images = list()
 
+    # Get the list of images that exist already on the system
+    images_local = [image.tags[0] for image in docker_client.images.list() if image.tags]
+
     # Read the list of software
     with open(f"{work_dir}/software/versions_major.txt", "r") as f:
         for software in f:
@@ -31,14 +34,17 @@ def get_images(docker_client, work_dir_path):
                 image_tag = f"{vendor}-{version}"
                 # Try to build the image locally
                 try:
-                    docker_client.images.build(path=f"{work_dir_path}/software/{path_to_dockerfile}", tag=image_tag, rm=True)
+                    if image_tag not in images_local:
+                        docker_client.images.build(path=f"{work_dir_path}/software/{path_to_dockerfile}", tag=image_tag, rm=True)
                     images.append(f"{image_tag}:latest")
                 # If the path to the Dockerfile was not found (the case of some Knot Resolver versions), 
                 # we need to pull the official image provided by CZ.NIC 
                 except TypeError:
                     if vendor == "knot-resolver":
-                        docker_client.images.pull(repository="cznic/knot-resolver", tag=f"v{version}")
-                        images.append(f"cznic/knot-resolver:v{version}")
+                        image_tag = f"cznic/knot-resolver:v{version}"
+                        if image_tag not in images_local:
+                            docker_client.images.pull(repository="cznic/knot-resolver", tag=f"v{version}")
+                        images.append(image_tag)
                 logging.info("Processed %s-%s", vendor, version)
             else:
                 logging.info("Skipping %s-%s", vendor, version)
