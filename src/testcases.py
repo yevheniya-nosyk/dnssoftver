@@ -143,3 +143,20 @@ def test_6(target):
         signature = {"error": "Timeout"}
 
     return signature
+
+def test_7(target, domain):
+    """Test case 7: a non-reqursive query for an unsigned domain without EDNS0 with QR=1"""
+
+    # Issue a query
+    qname = dns.name.from_text(text=domain)
+    query = dns.message.make_query(qname=qname, rdtype=dns.rdatatype.A, flags=dns.flags.from_text("QR"))
+    query.set_opcode(dns.opcode.QUERY)
+
+    try:
+        response = dns.query.udp(q=query, where=target, timeout=5)
+        # Parse the response to generate the signature
+        signature = parse_response_header(signature=get_signature(),response=response)
+    except dns.exception.Timeout:
+        signature = {"error": "Timeout"}
+
+    return signature
