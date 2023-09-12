@@ -178,3 +178,25 @@ def test_nx_ad(target):
         signature = {"error": "Timeout"}
 
     return signature
+
+
+def test_iquery(target, domain):
+    """
+    Send the recursive query with the IQuery option:
+
+    - Opcode: IQuery
+    - Flags: RD
+    - Question: <custom_domain> A  
+    """
+
+    # Build a query
+    query = dns.message.make_query(qname=dns.name.from_text(text=domain), rdtype=dns.rdatatype.A, flags=dns.flags.from_text("RD"))
+    query.set_opcode(dns.opcode.IQUERY)
+    # Send a query and generate a signature
+    try: 
+        response = dns.query.udp(q=query, where=target, timeout=5)
+        signature = parse_response_header(signature=get_signature(),response=response)
+    except dns.exception.Timeout:
+        signature = {"error": "Timeout"}
+    
+    return signature
