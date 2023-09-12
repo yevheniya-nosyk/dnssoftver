@@ -158,3 +158,37 @@ def test_nx_tc(target):
         signature = {"error": "Timeout"}
 
     return signature
+
+
+def test_nx_ad(target):
+    """
+    Send a query with authoritative data flag set:
+
+    - Opcode: Query
+    - Flags: AD
+    - Question: <non_existing_domain> A
+
+    """
+
+    # Generate a non-existing domain
+    while True:
+        domain = non_existing_domain()
+        try:
+            # Try to resolve it locally
+            dns.resolver.resolve(domain, "A")
+        except dns.exception.Timeout:
+            continue
+        except dns.resolver.NXDOMAIN:
+            break
+
+    # Build a query
+    query = dns.message.make_query(qname=dns.name.from_text(text=domain), rdtype=dns.rdatatype.A, flags=dns.flags.from_text("AD"))
+    query.set_opcode(dns.opcode.QUERY)
+    # Send a query and generate a signature
+    try:
+        response = dns.query.udp(q=query, where=target, timeout=5)
+        signature = parse_response_header(signature=get_signature(),response=response)
+    except dns.exception.Timeout:
+        signature = {"error": "Timeout"}
+
+    return signature
