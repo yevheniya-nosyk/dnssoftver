@@ -132,6 +132,7 @@ if __name__ == '__main__':
         results[target_to_scan[0]]["test_baseline"] = testcases.test_baseline(target=target_to_scan[1], domain=os.getenv("DOMAIN"))
         results[target_to_scan[0]]["test_nx_no_flags"] = testcases.test_nx_no_flags(target=target_to_scan[1])
         results[target_to_scan[0]]["test_is_response"] = testcases.test_is_response(target=target_to_scan[1], domain=os.getenv("DOMAIN"))
+        results[target_to_scan[0]]["test_nx_tc"] = testcases.test_nx_tc(target=target_to_scan[1])
 
     # Save the results
     with open(f"{work_dir}/signatures/signatures.json", "w") as f: 
