@@ -1,4 +1,5 @@
 import dns.resolver
+import dns.update
 import dns.flags
 import random
 import string
@@ -195,6 +196,26 @@ def test_iquery(target, domain):
     # Send a query and generate a signature
     try: 
         response = dns.query.udp(q=query, where=target, timeout=5)
+        signature = parse_response_header(signature=get_signature(),response=response)
+    except dns.exception.Timeout:
+        signature = {"error": "Timeout"}
+    
+    return signature
+
+def test_update(target, domain):
+    """
+    Send an Update query:
+
+    - Opcode: Update
+    - Flags: 
+    - Question: <custom_domain> SOA
+    """
+
+    # Build a query
+    update = dns.update.UpdateMessage(zone=domain)
+    # Send a query and generate a signature
+    try: 
+        response = dns.query.udp(q=update, where=target, timeout=5)
         signature = parse_response_header(signature=get_signature(),response=response)
     except dns.exception.Timeout:
         signature = {"error": "Timeout"}
