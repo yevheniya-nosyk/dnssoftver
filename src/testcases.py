@@ -60,17 +60,18 @@ def parse_response_header(response, signature):
     return signature
 
 
-def test_baseline(target, domain):
+def test_edns0(target, domain):
     """
-    The simplest baseline test case:
+    Send the request with EDNS0 set:
 
     - Opcode: Query
     - Flags: RD
-    - Question: <custom_domain> A  
+    - Question: <custom_domain> A 
+    - EDNS(0): 512 
     """
 
     # Build a query
-    query = dns.message.make_query(qname=dns.name.from_text(text=domain), rdtype=dns.rdatatype.A, flags=dns.flags.from_text("RD"))
+    query = dns.message.make_query(qname=dns.name.from_text(text=domain), rdtype=dns.rdatatype.A, flags=dns.flags.from_text("RD"), ednsflags=0, payload=512)
     query.set_opcode(dns.opcode.QUERY)
     # Send a query and generate a signature
     try: 
