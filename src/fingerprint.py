@@ -140,7 +140,9 @@ if __name__ == '__main__':
 
     # Save the results
     with open(f"{work_dir}/signatures/signatures.json", "w") as f: 
-        json.dump(results,f)
+        for k,v in results.items():
+            result = {k:v}
+            f.write(f"{json.dumps(result)}\n")
 
     # Stop and remove containers
     stop_and_remove_containers(containers_list=containers)
