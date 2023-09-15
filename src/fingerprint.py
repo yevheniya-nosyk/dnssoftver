@@ -1,3 +1,4 @@
+import multiprocessing
 import collections
 import testcases
 import logging
@@ -96,6 +97,22 @@ def get_targets(containers_list, network_custom):
     return targets
 
 
+def fingerprint_resolver(target):
+    """Issue queries to fingerprint a resolver"""
+
+    fingerprint = collections.defaultdict(dict)
+
+    fingerprint[target[0]]["test_edns0"] = testcases.test_edns0(target=target[1], domain=os.getenv("DOMAIN"))
+    fingerprint[target[0]]["test_nx_no_flags"] = testcases.test_nx_no_flags(target=target[1])
+    fingerprint[target[0]]["test_is_response"] = testcases.test_is_response(target=target[1], domain=os.getenv("DOMAIN"))
+    fingerprint[target[0]]["test_nx_tc"] = testcases.test_nx_tc(target=target[1])
+    fingerprint[target[0]]["test_nx_ad"] = testcases.test_nx_ad(target=target[1])
+    fingerprint[target[0]]["test_iquery"] = testcases.test_iquery(target=target[1], domain=os.getenv("DOMAIN"))
+    fingerprint[target[0]]["test_update"] = testcases.test_update(target=target[1], domain=os.getenv("DOMAIN"))
+    fingerprint[target[0]]["test_chaos_rd"] = testcases.test_chaos_rd(target=target[1], domain=os.getenv("DOMAIN"))
+
+    return fingerprint
+
 if __name__ == '__main__':
 
     # Get the working directory
@@ -126,22 +143,14 @@ if __name__ == '__main__':
     # Let all the programs inside containers start
     time.sleep(30)
     
-    # Execute queries and store results for each software vendor inside the results dictionnary
-    results = collections.defaultdict(dict)
-    for target_to_scan in targets:
-        results[target_to_scan[0]]["test_edns0"] = testcases.test_edns0(target=target_to_scan[1], domain=os.getenv("DOMAIN"))
-        results[target_to_scan[0]]["test_nx_no_flags"] = testcases.test_nx_no_flags(target=target_to_scan[1])
-        results[target_to_scan[0]]["test_is_response"] = testcases.test_is_response(target=target_to_scan[1], domain=os.getenv("DOMAIN"))
-        results[target_to_scan[0]]["test_nx_tc"] = testcases.test_nx_tc(target=target_to_scan[1])
-        results[target_to_scan[0]]["test_nx_ad"] = testcases.test_nx_ad(target=target_to_scan[1])
-        results[target_to_scan[0]]["test_iquery"] = testcases.test_iquery(target=target_to_scan[1], domain=os.getenv("DOMAIN"))
-        results[target_to_scan[0]]["test_update"] = testcases.test_update(target=target_to_scan[1], domain=os.getenv("DOMAIN"))
-        results[target_to_scan[0]]["test_chaos_rd"] = testcases.test_chaos_rd(target=target_to_scan[1], domain=os.getenv("DOMAIN"))
+    # Execute queries and store results for each software vendor inside the results дшіе
+    results = list()
+    with multiprocessing.Pool(15) as p:
+       results = p.map(fingerprint_resolver,targets)
 
     # Save the results
     with open(f"{work_dir}/signatures/signatures.json", "w") as f: 
-        for k,v in results.items():
-            result = {k:v}
+        for result in results:
             f.write(f"{json.dumps(result)}\n")
 
     # Stop and remove containers
