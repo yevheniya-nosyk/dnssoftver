@@ -18,6 +18,12 @@ def non_existing_domain():
 
     return domain
 
+
+def random_subdomain():
+    """Generate a 12-character random string"""
+    return "".join(random.choice(string.ascii_lowercase + string.digits) for _ in range(12))
+
+
 def get_signature():
     """Generate an empty signature dictionnary"""
 
@@ -60,18 +66,17 @@ def parse_response_header(response, signature):
     return signature
 
 
-def test_edns0(target, domain):
+def test_baseline(target, domain):
     """
-    Send the request with EDNS0 set:
+    Send the simplest request:
 
     - Opcode: Query
     - Flags: RD
     - Question: <custom_domain> A 
-    - EDNS(0): 512 
     """
 
     # Build a query
-    query = dns.message.make_query(qname=dns.name.from_text(text=domain), rdtype=dns.rdatatype.A, flags=dns.flags.from_text("RD"), ednsflags=0, payload=512)
+    query = dns.message.make_query(qname=dns.name.from_text(text=domain), rdtype=dns.rdatatype.A, flags=dns.flags.from_text("RD"))
     query.set_opcode(dns.opcode.QUERY)
     # Send a query and generate a signature
     try: 
@@ -83,94 +88,39 @@ def test_edns0(target, domain):
     return signature
 
 
-def test_nx_no_flags(target):
+def test_baseline_norec(target, domain):
     """
-    Query non-recursively a non-existing subdomain:
+    Send the simplest request:
 
     - Opcode: Query
-    - Flags:
-    - Question: <non_existing_domain> A
+    - Flags: 
+    - Question: <custom_domain> A 
     """
-
-    # Generate a non-existing domain
-    domain = non_existing_domain()
 
     # Build a query
     query = dns.message.make_query(qname=dns.name.from_text(text=domain), rdtype=dns.rdatatype.A, flags=0)
     query.set_opcode(dns.opcode.QUERY)
     # Send a query and generate a signature
-    try:
+    try: 
         response = dns.query.udp(q=query, where=target, timeout=5)
         signature = parse_response_header(signature=get_signature(),response=response)
     except dns.exception.Timeout:
         signature = {"error": "Timeout"}
-
+    
     return signature
 
 
-def test_is_response(target, domain):
+def test_nx_subdomain(target, domain):
     """
-    Send a query with response flag set:
+    Query recursively a non-existing subdomain under our domain:
 
     - Opcode: Query
-    - Flags: QR
-    - Question: <custom_domain> A
-
+    - Flags: RD
+    - Question: <random_subdomain>.<custom_domain> A
     """
 
     # Build a query
-    query = dns.message.make_query(qname=dns.name.from_text(text=domain), rdtype=dns.rdatatype.A, flags=dns.flags.from_text("QR"))
-    query.set_opcode(dns.opcode.QUERY)
-    # Send a query and generate a signature
-    try:
-        response = dns.query.udp(q=query, where=target, timeout=5)
-        signature = parse_response_header(signature=get_signature(),response=response)
-    except dns.exception.Timeout:
-        signature = {"error": "Timeout"}
-
-    return signature
-
-def test_nx_tc(target):
-    """
-    Send a query with truncated flag set:
-
-    - Opcode: Query
-    - Flags: TC
-    - Question: <non_existing_domain> A
-
-    """
-
-    # Generate a non-existing domain
-    domain = non_existing_domain()
-
-    # Build a query
-    query = dns.message.make_query(qname=dns.name.from_text(text=domain), rdtype=dns.rdatatype.A, flags=dns.flags.from_text("TC"))
-    query.set_opcode(dns.opcode.QUERY)
-    # Send a query and generate a signature
-    try:
-        response = dns.query.udp(q=query, where=target, timeout=5)
-        signature = parse_response_header(signature=get_signature(),response=response)
-    except dns.exception.Timeout:
-        signature = {"error": "Timeout"}
-
-    return signature
-
-
-def test_nx_ad(target):
-    """
-    Send a query with authoritative data flag set:
-
-    - Opcode: Query
-    - Flags: AD
-    - Question: <non_existing_domain> A
-
-    """
-
-    # Generate a non-existing domain
-    domain = non_existing_domain()
-
-    # Build a query
-    query = dns.message.make_query(qname=dns.name.from_text(text=domain), rdtype=dns.rdatatype.A, flags=dns.flags.from_text("AD"))
+    query = dns.message.make_query(qname=dns.name.from_text(text=f"{random_subdomain()}.{domain}"), rdtype=dns.rdatatype.A, flags=dns.flags.from_text("RD"))
     query.set_opcode(dns.opcode.QUERY)
     # Send a query and generate a signature
     try:
@@ -184,7 +134,7 @@ def test_nx_ad(target):
 
 def test_iquery(target, domain):
     """
-    Send the recursive query with the IQuery option:
+    Send the recursive query with the IQuery opcode:
 
     - Opcode: IQuery
     - Flags: RD
@@ -203,25 +153,6 @@ def test_iquery(target, domain):
     
     return signature
 
-def test_update(target, domain):
-    """
-    Send an Update query:
-
-    - Opcode: Update
-    - Flags: 
-    - Question: <custom_domain> SOA
-    """
-
-    # Build a query
-    update = dns.update.UpdateMessage(zone=domain)
-    # Send a query and generate a signature
-    try: 
-        response = dns.query.udp(q=update, where=target, timeout=5)
-        signature = parse_response_header(signature=get_signature(),response=response)
-    except dns.exception.Timeout:
-        signature = {"error": "Timeout"}
-    
-    return signature
 
 def test_chaos_rd(target, domain):
     """
@@ -244,4 +175,50 @@ def test_chaos_rd(target, domain):
     except dns.query.BadResponse as e:
         signature = {"error": str(e)}
     
+    return signature
+
+
+def test_is_response(target, domain):
+    """
+    Send a recursive query with response flag set:
+
+    - Opcode: Query
+    - Flags: QR RD
+    - Question: <custom_domain> A
+
+    """
+
+    # Build a query
+    query = dns.message.make_query(qname=dns.name.from_text(text=domain), rdtype=dns.rdatatype.A, flags=dns.flags.from_text("RD QR"))
+    query.set_opcode(dns.opcode.QUERY)
+    # Send a query and generate a signature
+    try:
+        response = dns.query.udp(q=query, where=target, timeout=5)
+        signature = parse_response_header(signature=get_signature(),response=response)
+    except dns.exception.Timeout:
+        signature = {"error": "Timeout"}
+
+    return signature
+
+
+def test_tc(target, domain):
+    """
+    Send a recursive query with truncated flag set:
+
+    - Opcode: Query
+    - Flags: TC RD
+    - Question: <custom_domain> A
+
+    """
+
+    # Build a query
+    query = dns.message.make_query(qname=dns.name.from_text(text=domain), rdtype=dns.rdatatype.A, flags=dns.flags.from_text("TC RD"))
+    query.set_opcode(dns.opcode.QUERY)
+    # Send a query and generate a signature
+    try:
+        response = dns.query.udp(q=query, where=target, timeout=5)
+        signature = parse_response_header(signature=get_signature(),response=response)
+    except dns.exception.Timeout:
+        signature = {"error": "Timeout"}
+
     return signature
