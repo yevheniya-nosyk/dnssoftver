@@ -102,14 +102,14 @@ def fingerprint_resolver(target):
 
     fingerprint = collections.defaultdict(dict)
 
-    fingerprint[target[0]]["test_edns0"] = testcases.test_edns0(target=target[1], domain=os.getenv("DOMAIN"))
+    fingerprint[target[0]]["test_edns0"] = testcases.test_edns0(target=target[1], domain=f"example.{os.getenv('DOMAIN')}")
     fingerprint[target[0]]["test_nx_no_flags"] = testcases.test_nx_no_flags(target=target[1])
-    fingerprint[target[0]]["test_is_response"] = testcases.test_is_response(target=target[1], domain=os.getenv("DOMAIN"))
+    fingerprint[target[0]]["test_is_response"] = testcases.test_is_response(target=target[1], domain=f"example.{os.getenv('DOMAIN')}")
     fingerprint[target[0]]["test_nx_tc"] = testcases.test_nx_tc(target=target[1])
     fingerprint[target[0]]["test_nx_ad"] = testcases.test_nx_ad(target=target[1])
-    fingerprint[target[0]]["test_iquery"] = testcases.test_iquery(target=target[1], domain=os.getenv("DOMAIN"))
-    fingerprint[target[0]]["test_update"] = testcases.test_update(target=target[1], domain=os.getenv("DOMAIN"))
-    fingerprint[target[0]]["test_chaos_rd"] = testcases.test_chaos_rd(target=target[1], domain=os.getenv("DOMAIN"))
+    fingerprint[target[0]]["test_iquery"] = testcases.test_iquery(target=target[1], domain=f"example.{os.getenv('DOMAIN')}")
+    fingerprint[target[0]]["test_update"] = testcases.test_update(target=target[1], domain=f"example.{os.getenv('DOMAIN')}")
+    fingerprint[target[0]]["test_chaos_rd"] = testcases.test_chaos_rd(target=target[1], domain=f"example.{os.getenv('DOMAIN')}")
 
     return fingerprint
 
