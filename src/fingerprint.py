@@ -1,6 +1,7 @@
 import multiprocessing
 import collections
 import testcases
+import argparse
 import logging
 import docker
 import dotenv
@@ -22,7 +23,7 @@ def get_images(docker_client, work_dir_path):
     images_local = [image.tags[0] for image in docker_client.images.list() if image.tags]
 
     # Read the list of software
-    with open(f"{work_dir}/software/versions_minor.txt", "r") as f:
+    with open(f"{work_dir}/software/versions_{args.versions}.txt", "r") as f:
         for software in f:
             # Extract vendor and version information
             vendor, _ , version = software.strip().split("/")
@@ -113,6 +114,11 @@ def fingerprint_resolver(target):
 
 if __name__ == '__main__':
 
+    # Parse command-line arguments
+    parser = argparse.ArgumentParser()
+    parser.add_argument('-v', '--versions', required=True, choices=["minor", "all"], type=str)
+    args = parser.parse_args()
+
     # Get the working directory
     work_dir = get_work_dir()
 
@@ -147,7 +153,7 @@ if __name__ == '__main__':
        results = p.map(fingerprint_resolver,targets)
 
     # Save the results
-    with open(f"{work_dir}/signatures/signatures_minor.json", "w") as f: 
+    with open(f"{work_dir}/signatures/signatures_{args.versions}.json", "w") as f: 
         for result in results:
             f.write(f"{json.dumps(result)}\n")
 
