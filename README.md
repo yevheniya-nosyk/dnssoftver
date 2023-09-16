@@ -16,7 +16,7 @@ Below is the list of the supported DNS software and versions:
 | [MaraDNS](https://maradns.samiam.org) | Recursive | `2.0.11-2.0.17`, `3.3.03`, `3.4.01-3.4.10`, `3.5.0001-3.5.00036` | Docker | <ul><li>[CHANGELOG](https://maradns.samiam.org/changelog.html)</li></ul> |
 | [Windows Server](https://www.microsoft.com/en-us/windows-server) | Recursive | `2016 Standard`, `2019 Standard`, `2022 Standard` | VPS | | 
 
-Full lists of all the supported and major versions can be found at `software/versions_all.txt` and `software/versions_major.txt`. When adding new software, don't forget to update the two files.
+Full lists of all the supported and minor versions can be found at `software/versions_all.txt` and `software/versions_minor.txt`. When adding new software, don't forget to update the two files.
 
 ## Prerequisites 
 

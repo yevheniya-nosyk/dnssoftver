@@ -22,7 +22,7 @@ def get_images(docker_client, work_dir_path):
     images_local = [image.tags[0] for image in docker_client.images.list() if image.tags]
 
     # Read the list of software
-    with open(f"{work_dir}/software/versions_major.txt", "r") as f:
+    with open(f"{work_dir}/software/versions_minor.txt", "r") as f:
         for software in f:
             # Extract vendor and version information
             vendor, _ , version = software.strip().split("/")
@@ -147,7 +147,7 @@ if __name__ == '__main__':
        results = p.map(fingerprint_resolver,targets)
 
     # Save the results
-    with open(f"{work_dir}/signatures/signatures.json", "w") as f: 
+    with open(f"{work_dir}/signatures/signatures_minor.json", "w") as f: 
         for result in results:
             f.write(f"{json.dumps(result)}\n")
 
