@@ -102,4 +102,4 @@ The script below builds docker images, starts containers in their own network, q
 $ python3 src/fingerprint.py --versions [minor,all]
 ```
 
-The signatures are stored in `signatures/signatures.json`.
+The signatures are stored in `signatures/signatures_[all,minor].json`.
