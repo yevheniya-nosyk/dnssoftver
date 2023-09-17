@@ -54,28 +54,23 @@ def get_images(docker_client, work_dir_path):
     return images
 
 
-def run_containers(images_list, network_custom):
-    """Run the containers in our custom network"""
+def run_container(image_to_build):
+    """Run the container in our custom network"""
 
-    # Store the container objects
-    containers = list()
-    for image in images_list:
-        logging.info("Starting the %s container", image)
-        container_new = client.containers.run(image=image, network = network_custom, detach=True, tty=True)
-        containers.append(container_new)
-
-    return containers
+    logging.info("Starting the %s container", image_to_build)
+    container = client.containers.run(image=str(image_to_build), network = "fpdns", detach=True, tty=True)
+    return container.id
 
 
-def stop_and_remove_containers(containers_list):
+def stop_and_remove_container(container_id):
     """Stop and remove all our containers running DNS software"""
 
-    # Stop and remove each container one by one
-    for container in containers_list:
-        logging.info("Stopping the %s container", container.image)
-        container.stop()
-        logging.info("Removing the %s container", container.image)
-        container.remove()
+    # Recreate a container object, then stop and remove it
+    container = client.containers.get(container_id=container_id)
+    logging.info("Stopping the %s container", container.image)
+    container.stop()
+    logging.info("Removing the %s container", container.image)
+    container.remove()
 
 
 def get_targets(containers_list, network_custom):
@@ -84,7 +79,8 @@ def get_targets(containers_list, network_custom):
     # Extract image name and IP addresses of each running container
     # Store as a list of tuples
     targets = list()
-    for container in containers_list:
+    for container_id in containers_list:
+        container = client.containers.get(container_id=container_id)
         container.reload()
         container_ip = container.attrs["NetworkSettings"]["Networks"][network_custom]["IPAddress"]
         container_image = container.attrs["Config"]["Image"]
@@ -138,7 +134,8 @@ if __name__ == '__main__':
     fpdns_network = client.networks.create(name="fpdns")
 
     # Run containers
-    containers = run_containers(images_list=images, network_custom=fpdns_network.name)
+    with multiprocessing.Pool(15) as p:
+        containers = p.map(run_container,images)
 
     # Generate targets to scan (software, IP)
     # This includes containers + Windows machines
@@ -158,7 +155,8 @@ if __name__ == '__main__':
             f.write(f"{json.dumps(result)}\n")
 
     # Stop and remove containers
-    stop_and_remove_containers(containers_list=containers)
+    with multiprocessing.Pool(15) as p:
+        p.map(stop_and_remove_container,containers)
 
     # Remove the Docker network
     fpdns_network.remove()
