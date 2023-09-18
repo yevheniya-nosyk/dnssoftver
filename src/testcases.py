@@ -108,11 +108,12 @@ def parse_response_header_ttl(response, signature):
     signature["header"]["ARCOUNT"] = response.adcount
 
     # Add the answer's TTL
-    ttl = response.answer[0].ttl
-    if ttl == 0:
-        signature["answer"]["TTL"] = 0
-    else:
-        signature["answer"]["TTL"] = 1
+    if response.answer:
+        ttl = response.answer[0].ttl
+        if ttl == 0:
+            signature["answer"]["TTL"] = 0
+        else:
+            signature["answer"]["TTL"] = 1
 
     # Return the signature
     return signature
