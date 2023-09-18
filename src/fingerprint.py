@@ -107,6 +107,7 @@ def fingerprint_resolver(target):
     fingerprint[target[0]]["test_tc"] = testcases.test_tc(target=target[1], domain=f"example.{os.getenv('DOMAIN')}")
     fingerprint[target[0]]["test_lame"] = testcases.test_lame(target=target[1], domain=f"lame.{os.getenv('DOMAIN')}")
     fingerprint[target[0]]["test_zero_ttl"] = testcases.test_zero_ttl(target=target[1], domain=f"zero-ttl.{os.getenv('DOMAIN')}")
+    fingerprint[target[0]]["test_edns0"] = testcases.test_edns0(target=target[1], domain=f"example.{os.getenv('DOMAIN')}")
    
     return fingerprint
 
