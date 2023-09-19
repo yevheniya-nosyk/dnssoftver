@@ -277,28 +277,6 @@ def test_tc(target, domain):
     return signature
 
 
-def test_lame(target, domain):
-    """
-    Send the recursive query for a subdomain with lame delegation:
-
-    - Opcode: Query
-    - Flags: RD
-    - Question: lame.<custom_domain> A 
-    """
-
-    # Build a query
-    query = dns.message.make_query(qname=dns.name.from_text(text=domain), rdtype=dns.rdatatype.A, flags=dns.flags.from_text("RD"))
-    query.set_opcode(dns.opcode.QUERY)
-    # Send a query and generate a signature
-    try: 
-        response = dns.query.udp(q=query, where=target, timeout=5)
-        signature = parse_response_header(signature=get_signature(),response=response)
-    except dns.exception.Timeout:
-        signature = {"error": "Timeout"}
-    
-    return signature
-
-
 def test_zero_ttl(target, domain):
     """
     Send the simplest request for a zone with 0 TTL:
