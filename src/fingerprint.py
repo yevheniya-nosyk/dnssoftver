@@ -108,6 +108,7 @@ def fingerprint_resolver(target):
     fingerprint[target[0]]["test_zero_ttl"] = testcases.test_zero_ttl(target=target[1], domain=f"zero-ttl.{os.getenv('DOMAIN')}")
     fingerprint[target[0]]["test_edns0"] = testcases.test_edns0(target=target[1], domain=f"example.{os.getenv('DOMAIN')}")
     fingerprint[target[0]]["test_home_arpa"] = testcases.test_local_zone(target=target[1], domain="home.arpa")
+    fingerprint[target[0]]["test_31_172"] = testcases.test_local_zone(target=target[1], domain="31.172.in-addr.arpa")
    
     return fingerprint
 
