@@ -325,3 +325,28 @@ def test_edns0(target, domain):
         signature = {"error": "Timeout"}
     
     return signature
+
+
+def test_local_zone(target, domain):
+    """
+    Send a PTR query for the locally served zone:
+
+    - Opcode: Query
+    - Flags: RD
+    - Question: <locally_served_zone> PTR
+
+    Assumption: RFC 6303 (Locally Served DNS Zones) supported.
+    """
+
+    # Build a query
+    query = dns.message.make_query(qname=dns.name.from_text(text=domain), rdtype=dns.rdatatype.PTR, flags=dns.flags.from_text("RD"))
+    query.use_edns(edns = True, payload=512)
+    query.set_opcode(dns.opcode.QUERY)
+    # Send a query and generate a signature
+    try: 
+        response = dns.query.udp(q=query, where=target, timeout=5)
+        signature = parse_response_header(signature=get_signature(),response=response)
+    except dns.exception.Timeout:
+        signature = {"error": "Timeout"}
+    
+    return signature
