@@ -322,7 +322,7 @@ def test_local_zone(target, domain):
     query.set_opcode(dns.opcode.QUERY)
     # Send a query and generate a signature
     try: 
-        response = dns.query.udp(q=query, where=target, timeout=5)
+        response = dns.query.udp(q=query, where=target, timeout=10)
         signature = parse_response_header(signature=get_signature(),response=response)
     except dns.exception.Timeout:
         signature = {"error": "Timeout"}
