@@ -130,13 +130,13 @@ if __name__ == '__main__':
     # Instantiate the Docker client
     client = docker.from_env()
 
-    # Build Docker images
+    # Build Docker images if do not exist yet
     images = get_images(docker_client=client, work_dir_path=work_dir)
 
     # Create a Docker network for this project
     fpdns_network = client.networks.create(name="fpdns")
 
-    # Run containers
+    # Start containers
     with multiprocessing.Pool(15) as p:
         containers = p.map(run_container,images)
 
@@ -147,7 +147,7 @@ if __name__ == '__main__':
     # Let all the programs inside containers start
     time.sleep(30)
     
-    # Execute queries and store results for each software vendor inside the results дшіе
+    # Execute queries and store results for each software vendor inside the results list
     results = list()
     with multiprocessing.Pool(15) as p:
        results = p.map(fingerprint_resolver,targets)
