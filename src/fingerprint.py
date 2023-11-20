@@ -136,30 +136,40 @@ if __name__ == '__main__':
     # Create a Docker network for this project
     fpdns_network = client.networks.create(name="fpdns")
 
-    # Start containers
-    with multiprocessing.Pool(15) as p:
-        containers = p.map(run_container,images)
-
-    # Generate targets to scan (software, IP)
-    # This includes containers + Windows machines
-    targets = get_targets(containers_list=containers, network_custom=fpdns_network.name)
-
-    # Let all the programs inside containers start
-    time.sleep(30)
-    
-    # Execute queries and store results for each software vendor inside the results list
+    # Store testing results in the list
     results = list()
-    with multiprocessing.Pool(15) as p:
-       results = p.map(fingerprint_resolver,targets)
 
-    # Save the results
-    with open(f"{work_dir}/signatures/signatures_{args.versions}.json", "w") as f: 
-        for result in results:
-            f.write(f"{json.dumps(result)}\n")
+    # Repeat all the tests 5 times
+    repeats = 5
+    while repeats:
 
-    # Stop and remove containers
-    with multiprocessing.Pool(15) as p:
-        p.map(stop_and_remove_container,containers)
+        # Start containers
+        with multiprocessing.Pool(15) as p:
+            containers = p.map(run_container,images)
+
+        # Generate targets to scan (software, IP)
+        # This includes containers + Windows machines
+        targets = get_targets(containers_list=containers, network_custom=fpdns_network.name)
+
+        # Let all the programs inside containers start
+        time.sleep(30)
+        
+        # Execute queries and store results for each software vendor inside the results list
+        with multiprocessing.Pool(15) as p:
+            results_local = p.map(fingerprint_resolver,targets)
+        results.extend(results_local)
+
+
+        # Save the results
+        with open(f"{work_dir}/signatures/signatures_{args.versions}.json", "w") as f: 
+            for result in results:
+                f.write(f"{json.dumps(result)}\n")
+
+        # Stop and remove containers
+        with multiprocessing.Pool(15) as p:
+            p.map(stop_and_remove_container,containers)
+
+        repeats -= 1
 
     # Remove the Docker network
     fpdns_network.remove()
