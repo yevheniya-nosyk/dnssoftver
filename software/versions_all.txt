@@ -393,7 +393,6 @@ pdns-recursor/4.1/4.1.0
 pdns-recursor/4.1/4.1.0-alpha1
 pdns-recursor/4.1/4.1.0-rc1
 pdns-recursor/4.1/4.1.0-rc2
-pdns-recursor/4.1/4.1.0-rc3
 pdns-recursor/4.1/4.1.1
 pdns-recursor/4.1/4.1.10
 pdns-recursor/4.1/4.1.11
