@@ -141,7 +141,7 @@ def test_baseline(target, domain):
     return signature
 
 
-def test_baseline_norec(target, domain):
+def test_norec(target, domain):
     """
     Send the simplest request:
 
