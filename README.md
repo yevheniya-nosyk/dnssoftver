@@ -103,3 +103,9 @@ $ python3 src/fingerprint.py --versions [minor,all]
 ```
 
 The signatures are stored in `signatures/signatures_[all,minor].json`.
+
+## Classification
+
+We address the classification problem using decision trees built with `scikit-learn`. The following Jupyter notebook contains the model to distinguish software vendors:
+
+- `src/decision_tree_vendor.ipynb`

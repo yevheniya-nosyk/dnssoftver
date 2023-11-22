@@ -1,3 +1,5 @@
 docker
 python-dotenv
 dnspython
+scikit-learn
+pandas
