@@ -98,14 +98,14 @@ def fingerprint_resolver(target):
     """Issue queries to fingerprint a resolver"""
 
     fingerprint = collections.defaultdict(dict)
-    fingerprint[target[0]]["test_baseline"] = testcases.test_baseline(target=target[1], domain=f"example.{os.getenv('DOMAIN')}")
-    fingerprint[target[0]]["test_baseline_norec"] = testcases.test_baseline_norec(target=target[1], domain=f"example.{os.getenv('DOMAIN')}")
-    fingerprint[target[0]]["test_iquery"] = testcases.test_iquery(target=target[1], domain=f"example.{os.getenv('DOMAIN')}")
-    fingerprint[target[0]]["test_chaos_rd"] = testcases.test_chaos_rd(target=target[1], domain=f"example.{os.getenv('DOMAIN')}")
-    fingerprint[target[0]]["test_is_response"] = testcases.test_is_response(target=target[1], domain=f"example.{os.getenv('DOMAIN')}")
-    fingerprint[target[0]]["test_tc"] = testcases.test_tc(target=target[1], domain=f"example.{os.getenv('DOMAIN')}")
+    fingerprint[target[0]]["test_baseline"] = testcases.test_baseline(target=target[1], domain=f"baseline.{os.getenv('DOMAIN')}")
+    fingerprint[target[0]]["test_baseline_norec"] = testcases.test_baseline_norec(target=target[1], domain=f"norec.{os.getenv('DOMAIN')}")
+    fingerprint[target[0]]["test_iquery"] = testcases.test_iquery(target=target[1], domain=f"iquery.{os.getenv('DOMAIN')}")
+    fingerprint[target[0]]["test_chaos_rd"] = testcases.test_chaos_rd(target=target[1], domain=f"chaos.{os.getenv('DOMAIN')}")
+    fingerprint[target[0]]["test_is_response"] = testcases.test_is_response(target=target[1], domain=f"response.{os.getenv('DOMAIN')}")
+    fingerprint[target[0]]["test_tc"] = testcases.test_tc(target=target[1], domain=f"tc.{os.getenv('DOMAIN')}")
     fingerprint[target[0]]["test_zero_ttl"] = testcases.test_zero_ttl(target=target[1], domain=f"zero-ttl.{os.getenv('DOMAIN')}")
-    fingerprint[target[0]]["test_edns0"] = testcases.test_edns0(target=target[1], domain=f"example.{os.getenv('DOMAIN')}")
+    fingerprint[target[0]]["test_edns0"] = testcases.test_edns0(target=target[1], domain=f"edns0.{os.getenv('DOMAIN')}")
     fingerprint[target[0]]["test_home_arpa"] = testcases.test_local_zone(target=target[1], domain="home.arpa")
     fingerprint[target[0]]["test_31_172"] = testcases.test_local_zone(target=target[1], domain="31.172.in-addr.arpa")
    
