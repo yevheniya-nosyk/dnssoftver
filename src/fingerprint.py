@@ -141,16 +141,25 @@ if __name__ == '__main__':
     repeats = 5
     while repeats:
 
-        # Start containers
-        with multiprocessing.Pool(15) as p:
-            containers = p.map(run_container,images)
+        # Start containers and store container IDs
+        containers = list()
+        for image in images:
+            containers.append(run_container(image))
+
+        # Wait until all the containers are running
+        for container_id in containers:
+            # Recreate the container object
+            container = client.containers.get(container_id=container_id)
+            # Set the condition
+            status = container.status
+            while status != "running":
+                time.sleep(5)
+                container.reload()
+                status = container.status
 
         # Generate targets to scan (software, IP)
         # This includes containers + Windows machines
         targets = get_targets(containers_list=containers, network_custom=fpdns_network.name)
-
-        # Let all the programs inside containers start
-        time.sleep(30)
         
         # Execute queries and store results for each software vendor inside the results list
         with multiprocessing.Pool(15) as p:
