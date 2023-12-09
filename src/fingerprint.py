@@ -62,15 +62,13 @@ def run_container(image_to_build):
     return container.id
 
 
-def stop_and_remove_container(container_id):
-    """Stop and remove all our containers running DNS software"""
+def remove_container(container_id):
+    """Remove all our containers running DNS software"""
 
-    # Recreate a container object, then stop and remove it
+    # Recreate a container object, then remove it
     container = client.containers.get(container_id=container_id)
-    logging.info("Stopping the %s container", container.image)
-    container.stop()
     logging.info("Removing the %s container", container.image)
-    container.remove()
+    container.remove(force=True)
 
 
 def get_targets(containers_list, network_custom):
@@ -165,9 +163,9 @@ if __name__ == '__main__':
             for result in results:
                 f.write(f"{json.dumps(result)}\n")
 
-        # Stop and remove containers
-        with multiprocessing.Pool(15) as p:
-            p.map(stop_and_remove_container,containers)
+        # Remove containers
+        for container in containers:
+            remove_container(container)
 
         repeats -= 1
 
