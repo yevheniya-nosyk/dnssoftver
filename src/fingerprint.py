@@ -157,17 +157,16 @@ if __name__ == '__main__':
             results_local = p.starmap(fingerprint_resolver,targets)
         results.extend(results_local)
 
-
-        # Save the results
-        with open(f"{work_dir}/signatures/signatures_{args.versions}.json", "w") as f: 
-            for result in results:
-                f.write(f"{json.dumps(result)}\n")
-
         # Remove containers
         for container in containers:
             remove_container(container)
 
         repeats -= 1
+
+    # Save the results
+    with open(f"{work_dir}/signatures/signatures_{args.versions}.json", "w") as f: 
+        for result in results:
+            f.write(f"{json.dumps(result)}\n")
 
     # Remove the Docker network
     fpdns_network.remove()
