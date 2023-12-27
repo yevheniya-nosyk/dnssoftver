@@ -7,6 +7,7 @@ import docker
 import dotenv
 import time
 import json
+import csv
 import os 
 
 def get_work_dir():
@@ -17,39 +18,51 @@ def get_work_dir():
 def get_images(docker_client, work_dir_path):
     """Build DNS software images from Dockerfiles or pull from DockerHub"""
 
+    # Store all the resolver images
     images = list()
 
-    # Get the list of images that exist already on the system
+    # Get the list of images that exist already on the system so that we do not build them again
     images_local = [image.tags[0] for image in docker_client.images.list() if image.tags]
 
     # Read the list of software
     with open(f"{work_dir}/software/versions_{args.versions}.txt", "r") as f:
-        for software in f:
+        software_all = list(csv.reader(f))
+        for software in software_all:
             # Extract vendor and version information
-            vendor, _ , version = software.strip().split("/")
+            vendor, _ , version = software[0].strip().split("/")
             logging.info("Processing %s-%s", vendor, version)
-            # We have Dockerfiles for non-Microsoft software
-            if vendor != "microsoft":
-                # Store the path to Dockerfile
-                path_to_dockerfile = software.strip()
-                # Store the image tag
-                image_tag = f"{vendor}-{version}"
-                # Try to build the image locally
-                try:
+            # There are three types of software installations:
+            # - local Dockerfile
+            # - remote image repository
+            # - virtual private server
+            installation_type = software[1]
+            if installation_type != "vps":
+                # If our software is not a VPS, then we will deal with Docker images
+                if installation_type == "dockerfile":
+                    # Store the path to Dockerfile:
+                    path_to_dockerfile = software[0]
+                    # Store the image tag
+                    image_tag = f"{vendor}-{version}"
+                    # Ensure the image is not already built
                     if image_tag not in images_local:
                         docker_client.images.build(path=f"{work_dir_path}/software/{path_to_dockerfile}", tag=image_tag, rm=True)
-                    images.append(f"{image_tag}:latest")
-                # If the path to the Dockerfile was not found (the case of some Knot Resolver versions), 
-                # we need to pull the official image provided by CZ.NIC 
-                except TypeError:
-                    if vendor == "knot-resolver":
-                        image_tag = f"cznic/knot-resolver:v{version}"
-                        if image_tag not in images_local:
-                            docker_client.images.pull(repository="cznic/knot-resolver", tag=f"v{version}")
-                        images.append(image_tag)
+                elif installation_type == "remote":
+                    # Store the remote repository
+                    repository_remote = software[2]
+                    # Store the remote and local image tags
+                    image_tag = f"{vendor}-{version}"
+                    image_tag_remote = f"{repository_remote}:v{version}"
+                    # Ensure the image is not already built
+                    if image_tag not in images_local:
+                        # Pull the image and create a new tag that follows our local naming convention
+                        docker_client.images.pull(repository=repository_remote, tag=f"v{version}").tag(repository=image_tag)
+                        # Remove the original image
+                        docker_client.images.remove(image=image_tag_remote)
+                # Save the image we have just processed
+                images.append(f"{image_tag}:latest")
                 logging.info("Processed %s-%s", vendor, version)
             else:
-                logging.info("Skipping %s-%s", vendor, version)
+                logging.info("Skipping %s-%s because it is a VPS", vendor, version)
 
     return images
 
