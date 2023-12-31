@@ -155,9 +155,8 @@ if __name__ == '__main__':
     while repeats:
 
         # Start containers and store container IDs
-        containers = list()
-        for image in images:
-            containers.append(run_container(image))
+        with multiprocessing.Pool(15) as p:
+            containers = p.map(run_container,images)
 
         # Wait until all the containers are running
         for container_id in containers:
@@ -180,8 +179,8 @@ if __name__ == '__main__':
         results.extend(results_local)
 
         # Remove containers
-        for container in containers:
-            remove_container(container)
+        with multiprocessing.Pool(15) as p:
+            p.map(remove_container,containers)
 
         repeats -= 1
 
