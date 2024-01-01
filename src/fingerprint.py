@@ -1,3 +1,4 @@
+import multiprocessing.pool
 import multiprocessing
 import collections
 import testcases
@@ -174,7 +175,7 @@ if __name__ == '__main__':
         targets = get_targets(containers_list=containers, network_custom=fpdns_network.name)
         
         # Execute queries and store results for each software vendor inside the results list
-        with multiprocessing.Pool(15) as p:
+        with multiprocessing.pool.ThreadPool(100) as p:
             results_local = p.starmap(fingerprint_resolver,targets)
         results.extend(results_local)
 
