@@ -149,7 +149,7 @@ if __name__ == '__main__':
     fpdns_network = client.networks.create(name="fpdns")
 
     # Store testing results in the list
-    results = list()
+    results = collections.defaultdict(dict)
 
     # Repeat all the tests 5 times
     repeats = 5
@@ -177,7 +177,11 @@ if __name__ == '__main__':
         # Execute queries and store results for each software vendor inside the results list
         with multiprocessing.pool.ThreadPool(100) as p:
             results_local = p.starmap(fingerprint_resolver,targets)
-        results.extend(results_local)
+        
+        # Write the local result to the main results dictionnary
+        for result in results_local:
+            for software in result:
+                results[software][f"round_{repeats}"] = result[software]
 
         # Remove containers
         with multiprocessing.Pool(15) as p:
@@ -188,7 +192,7 @@ if __name__ == '__main__':
     # Save the results
     with open(f"{work_dir}/signatures/signatures_{args.versions}.json", "w") as f: 
         for result in results:
-            f.write(f"{json.dumps(result)}\n")
+            f.write(f"{json.dumps({result:results[result]})}\n")
 
     # Remove the Docker network
     fpdns_network.remove()
