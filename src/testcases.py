@@ -10,34 +10,34 @@ def random_string():
     return "".join(random.choice(string.ascii_lowercase + string.digits) for _ in range(12))
 
 
-def generate_dns_query(target_ip,q_options):
+def generate_dns_query(q_options):
     """Craft a DNS query and send it"""
 
     # Generate a random subdomain
     random_subdomain = random_string()
 
     # Extract flags from the query options and concatenate to a string
-    flags = " ".join([q_options[i] for i in q_options if i.startswith("flag_") if q_options[i]])
+    flags = " ".join([q_options["query_options"][i] for i in q_options["query_options"] if i.startswith("flag_") if q_options["query_options"][i]])
 
     # Build the DNS query
     query = dns.message.make_query(
-        qname=dns.name.from_text(text=f"{random_subdomain}.{q_options['subdomain']}.{os.getenv('DOMAIN')}"), 
-        rdtype=dns.rdatatype.from_text(text=q_options["resource_record"]), 
-        rdclass=dns.rdataclass.from_text(text=q_options["class"]),
+        qname=dns.name.from_text(text=f"{random_subdomain}.{q_options['query_options']['subdomain']}.{os.getenv('DOMAIN')}"), 
+        rdtype=dns.rdatatype.from_text(text=q_options["query_options"]["resource_record"]), 
+        rdclass=dns.rdataclass.from_text(text=q_options["query_options"]["class"]),
         flags=dns.flags.from_text(text=flags)
         )
     
     # Set the option code
-    query.set_opcode(dns.opcode.from_text(text=q_options["opcode"]))
+    query.set_opcode(dns.opcode.from_text(text=q_options["query_options"]["opcode"]))
 
     # Send the query and parse the response
     try:
-        response = dns.query.udp(q=query, where=target_ip, timeout=10) 
+        response = dns.query.udp(q=query, where=q_options["ip"], timeout=5) 
         signature = parse_dns_query(response=response)
     except dns.exception.Timeout:
         signature = {"error": "Timeout after 10 seconds"}
 
-    return signature
+    return {"software": q_options["software"], "query_name": q_options["query_name"], "signature": signature}
 
 
 def parse_dns_query(response):

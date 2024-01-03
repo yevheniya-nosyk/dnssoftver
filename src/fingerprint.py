@@ -102,20 +102,27 @@ def get_targets(containers_list, network_custom):
     return targets
 
 
-def fingerprint_resolver(software,ip_address):
-    """Issue queries to fingerprint a resolver"""
+def generate_queries(query_targets):
+    """Generate all the possible query combinations"""
 
-    # Will contain resolver fingerprint
-    fingerprint = collections.defaultdict(dict)
+    # Will store the result
+    queries = list()
 
-    # Generate all the possible query combinations
-    for query_combo in (dict(zip(testcases.query_options.keys(), values)) for values in itertools.product(*testcases.query_options.values())):
-        # Assign this test case a name
-        query_name = "_".join([query_combo[i] for i in query_combo if query_combo[i]])
-        # Execute a query and store the result in the fingerprint dictionnary
-        fingerprint[software][query_name] = testcases.generate_dns_query(target_ip=ip_address,q_options=query_combo)
-
-    return fingerprint
+    for target in query_targets:
+        for query_combo in (dict(zip(testcases.query_options.keys(), values)) for values in itertools.product(*testcases.query_options.values())):
+            # Assign this query a name
+            query_name = "_".join([query_combo[i] for i in query_combo if query_combo[i]])
+            # Create a dictionnary with all the query options that will be passed to testcases.generate_dns_query()
+            query = {
+                "query_name": query_name,
+                "software": target[0],
+                "ip": target[1],
+                "query_options": query_combo
+            }
+            # Append to the list of queries
+            queries.append(query)
+    
+    return queries
 
 if __name__ == '__main__':
 
@@ -143,7 +150,7 @@ if __name__ == '__main__':
     fpdns_network = client.networks.create(name="fpdns")
 
     # Store testing results in the list
-    results = collections.defaultdict(dict)
+    results = collections.defaultdict(lambda: collections.defaultdict(dict))
 
     # Repeat all the tests 5 times
     repeats = 5
@@ -181,14 +188,16 @@ if __name__ == '__main__':
                 targets.append(("windows-server:2019",os.getenv("WS_IP_2019")))
                 targets.append(("windows-server:2016",os.getenv("WS_IP_2016")))
 
-            # Execute queries and store results for each software vendor inside the results list
-            with multiprocessing.pool.ThreadPool(batch_size) as p:
-                results_local = p.starmap(fingerprint_resolver,targets)
-            
+            # Generate all the queries to be executed
+            queries_all = generate_queries(query_targets=targets)    
+
+            # Execute queries and store results inside the results list
+            with multiprocessing.pool.ThreadPool(batch_size*2) as p:
+                results_local = p.map(testcases.generate_dns_query, queries_all)
+
             # Write the local result to the main results dictionnary
             for result in results_local:
-                for software in result:
-                    results[software][f"round_{repeats}"] = result[software]
+                results[result["software"]][f"round_{repeats}"].update({result["query_name"]: result["signature"]})
 
             # Remove containers
             with multiprocessing.Pool(15) as p:
