@@ -2,6 +2,7 @@ import multiprocessing.pool
 import multiprocessing
 import collections
 import testcases
+import itertools
 import argparse
 import logging
 import docker
@@ -104,18 +105,16 @@ def get_targets(containers_list, network_custom):
 def fingerprint_resolver(software,ip_address):
     """Issue queries to fingerprint a resolver"""
 
+    # Will contain resolver fingerprint
     fingerprint = collections.defaultdict(dict)
-    fingerprint[software]["test_baseline"] = testcases.test_baseline(target=ip_address, domain=f"baseline.{os.getenv('DOMAIN')}")
-    fingerprint[software]["test_norec"] = testcases.test_norec(target=ip_address, domain=f"norec.{os.getenv('DOMAIN')}")
-    fingerprint[software]["test_iquery"] = testcases.test_iquery(target=ip_address, domain=f"iquery.{os.getenv('DOMAIN')}")
-    fingerprint[software]["test_chaos_rd"] = testcases.test_chaos_rd(target=ip_address, domain=f"chaos.{os.getenv('DOMAIN')}")
-    fingerprint[software]["test_is_response"] = testcases.test_is_response(target=ip_address, domain=f"response.{os.getenv('DOMAIN')}")
-    fingerprint[software]["test_tc"] = testcases.test_tc(target=ip_address, domain=f"tc.{os.getenv('DOMAIN')}")
-    fingerprint[software]["test_zero_ttl"] = testcases.test_zero_ttl(target=ip_address, domain=f"zero-ttl.{os.getenv('DOMAIN')}")
-    fingerprint[software]["test_edns0"] = testcases.test_edns0(target=ip_address, domain=f"edns0.{os.getenv('DOMAIN')}")
-    fingerprint[software]["test_home_arpa"] = testcases.test_local_zone(target=ip_address, domain="home.arpa")
-    fingerprint[software]["test_31_172"] = testcases.test_local_zone(target=ip_address, domain="31.172.in-addr.arpa")
-   
+
+    # Generate all the possible query combinations
+    for query_combo in (dict(zip(testcases.query_options.keys(), values)) for values in itertools.product(*testcases.query_options.values())):
+        # Assign this test case a name
+        query_name = "_".join([query_combo[i] for i in query_combo if query_combo[i]])
+        # Execute a query and store the result in the fingerprint dictionnary
+        fingerprint[software][query_name] = testcases.generate_dns_query(target_ip=ip_address,q_options=query_combo)
+
     return fingerprint
 
 if __name__ == '__main__':

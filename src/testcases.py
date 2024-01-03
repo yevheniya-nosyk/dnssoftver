@@ -1,330 +1,95 @@
 import dns.resolver
-import dns.update
 import dns.flags
+import dotenv
 import random
 import string
+import os
 
-def non_existing_domain():
-    """Generate a non-existing SLD under .com"""
-    while True:
-        domain = "".join(random.choice(string.ascii_lowercase + string.digits) for _ in range(12)) + ".com"
-        try:
-            # Try to resolve it locally
-            dns.resolver.resolve(domain, "A")
-        except dns.exception.Timeout:
-            continue
-        except dns.resolver.NXDOMAIN:
-            break
-
-    return domain
-
-
-def random_subdomain():
-    """Generate a 12-character random string"""
+def random_string():
+    """Generate a random 12-character string"""
     return "".join(random.choice(string.ascii_lowercase + string.digits) for _ in range(12))
 
 
-def get_signature():
-    """Generate an empty signature dictionnary"""
+def generate_dns_query(target_ip,q_options):
+    """Craft a DNS query and send it"""
 
-    return {
-        "header":{
-            "QR": 0,
-            "Opcode": 0,
-            "AA": 0,
-            "TC": 0,
-            "RD": 0,
-            "RA": 0,
-            # Z flag does not seem to be supported by dnspython
-            "AD": 0,
-            "CD": 0,
-            "RCODE": None,
-            "QDCOUNT": 0,
-            "ANCOUNT": 0,
-            "NSCOUNT": 0,
-            "ARCOUNT":0 
-        }   
-    }
+    # Generate a random subdomain
+    random_subdomain = random_string()
 
-def get_signature_ttl():
-    """Generate an empty signature dictionnary"""
+    # Extract flags from the query options and concatenate to a string
+    flags = " ".join([q_options[i] for i in q_options if i.startswith("flag_") if q_options[i]])
 
-    return {
-        "header":{
-            "QR": 0,
-            "Opcode": 0,
-            "AA": 0,
-            "TC": 0,
-            "RD": 0,
-            "RA": 0,
-            # Z flag does not seem to be supported by dnspython
-            "AD": 0,
-            "CD": 0,
-            "RCODE": None,
-            "QDCOUNT": 0,
-            "ANCOUNT": 0,
-            "NSCOUNT": 0,
-            "ARCOUNT":0 
-        },
-        "answer": {
-            "TTL": None
-        }   
-    }
+    # Build the DNS query
+    query = dns.message.make_query(
+        qname=dns.name.from_text(text=f"{random_subdomain}.{q_options['subdomain']}.{os.getenv('DOMAIN')}"), 
+        rdtype=dns.rdatatype.from_text(text=q_options["resource_record"]), 
+        rdclass=dns.rdataclass.from_text(text=q_options["class"]),
+        flags=dns.flags.from_text(text=flags)
+        )
+    
+    # Set the option code
+    query.set_opcode(dns.opcode.from_text(text=q_options["opcode"]))
+
+    # Send the query and parse the response
+    try:
+        response = dns.query.udp(q=query, where=target_ip, timeout=10) 
+        signature = parse_dns_query(response=response)
+    except dns.exception.Timeout:
+        signature = {"error": "Timeout after 10 seconds"}
+
+    return signature
 
 
-
-def parse_response_header(response, signature):
+def parse_dns_query(response):
     """Parse the response and return its signature"""
+
+    # Create an empty signature
+    signature = {
+        "QR": 0,
+        "Opcode": 0,
+        "AA": 0,
+        "TC": 0,
+        "RD": 0,
+        "RA": 0,
+        "RCODE": None,
+        "QDCOUNT": 0,
+        "ANCOUNT": 0,
+        "NSCOUNT": 0,
+        "ARCOUNT": 0 
+    }
 
     # Add flags to the signature dictionnary
     for flag in dns.flags.to_text(response.flags).split(" "):
-        signature["header"][flag] = 1
+        if flag in signature:
+            signature[flag] = 1
 
     # Add other header data into the signature
-    signature["header"]["Opcode"] = dns.opcode.to_text(response.opcode())
-    signature["header"]["RCODE"] = dns.rcode.to_text(response.rcode())
-    signature["header"]["QDCOUNT"] = response.qcount
-    signature["header"]["ANCOUNT"] = response.ancount
-    signature["header"]["NSCOUNT"] = response.aucount
-    signature["header"]["ARCOUNT"] = response.adcount
+    signature["Opcode"] = dns.opcode.to_text(response.opcode())
+    signature["RCODE"] = dns.rcode.to_text(response.rcode())
+    signature["QDCOUNT"] = response.qcount
+    signature["ANCOUNT"] = response.ancount
+    signature["NSCOUNT"] = response.aucount
+    signature["ARCOUNT"] = response.adcount
 
     # Return the signature
     return signature
 
 
-def parse_response_header_ttl(response, signature):
-    """Parse the response and return its signature"""
+# Load the .env file
+dotenv.load_dotenv()
 
-    # Add flags to the signature dictionnary
-    for flag in dns.flags.to_text(response.flags).split(" "):
-        signature["header"][flag] = 1
+# The dictionnary below stores all the possible options to build DNS queries,
+# such as domain names, resource records, classes, flags, etc.
+# Empty strings signify that the corresponding flags are not set.
 
-    # Add other header data into the signature
-    signature["header"]["Opcode"] = dns.opcode.to_text(response.opcode())
-    signature["header"]["RCODE"] = dns.rcode.to_text(response.rcode())
-    signature["header"]["QDCOUNT"] = response.qcount
-    signature["header"]["ANCOUNT"] = response.ancount
-    signature["header"]["NSCOUNT"] = response.aucount
-    signature["header"]["ARCOUNT"] = response.adcount
-
-    # Add the answer's TTL
-    if response.answer:
-        ttl = response.answer[0].ttl
-        if ttl == 0:
-            signature["answer"]["TTL"] = 0
-        else:
-            signature["answer"]["TTL"] = 1
-
-    # Return the signature
-    return signature
-
-
-def test_baseline(target, domain):
-    """
-    Send the simplest request:
-
-    - Opcode: Query
-    - Flags: RD
-    - Question: <custom_domain> A 
-    """
-
-    # Build a query
-    query = dns.message.make_query(qname=dns.name.from_text(text=domain), rdtype=dns.rdatatype.A, flags=dns.flags.from_text("RD"))
-    query.set_opcode(dns.opcode.QUERY)
-    # Send a query and generate a signature
-    try: 
-        response = dns.query.udp(q=query, where=target, timeout=5)
-        signature = parse_response_header(signature=get_signature(),response=response)
-    except dns.exception.Timeout:
-        signature = {"error": "Timeout"}
-    
-    return signature
-
-
-def test_norec(target, domain):
-    """
-    Send the simplest request:
-
-    - Opcode: Query
-    - Flags: 
-    - Question: <custom_domain> A 
-    """
-
-    # Build a query
-    query = dns.message.make_query(qname=dns.name.from_text(text=domain), rdtype=dns.rdatatype.A, flags=0)
-    query.set_opcode(dns.opcode.QUERY)
-    # Send a query and generate a signature
-    try: 
-        response = dns.query.udp(q=query, where=target, timeout=5)
-        signature = parse_response_header(signature=get_signature(),response=response)
-    except dns.exception.Timeout:
-        signature = {"error": "Timeout"}
-    
-    return signature
-
-
-def test_iquery(target, domain):
-    """
-    Send the recursive query with the IQuery opcode:
-
-    - Opcode: IQuery
-    - Flags: RD
-    - Question: <custom_domain> A  
-    """
-
-    # Build a query
-    query = dns.message.make_query(qname=dns.name.from_text(text=domain), rdtype=dns.rdatatype.A, flags=dns.flags.from_text("RD"))
-    query.set_opcode(dns.opcode.IQUERY)
-    # Send a query and generate a signature
-    try: 
-        response = dns.query.udp(q=query, where=target, timeout=5)
-        signature = parse_response_header(signature=get_signature(),response=response)
-    except dns.exception.Timeout:
-        signature = {"error": "Timeout"}
-    
-    return signature
-
-
-def test_chaos_rd(target, domain):
-    """
-    The recursive CHAOS-class query:
-
-    - Opcode: Query
-    - Flags: RD
-    - Question: <custom_domain> CH A  
-    """
-
-    # Build a query
-    query = dns.message.make_query(qname=dns.name.from_text(text=domain), rdtype=dns.rdatatype.A, rdclass=dns.rdataclass.CHAOS, flags=dns.flags.from_text("RD"))
-    query.set_opcode(dns.opcode.QUERY)
-    # Send a query and generate a signature
-    try: 
-        response = dns.query.udp(q=query, where=target, timeout=5)
-        signature = parse_response_header(signature=get_signature(),response=response)
-    except dns.exception.Timeout:
-        signature = {"error": "Timeout"}
-    except dns.query.BadResponse as e:
-        signature = {"error": str(e)}
-    
-    return signature
-
-
-def test_is_response(target, domain):
-    """
-    Send a recursive query with response flag set:
-
-    - Opcode: Query
-    - Flags: QR RD
-    - Question: <custom_domain> A
-
-    """
-
-    # Build a query
-    query = dns.message.make_query(qname=dns.name.from_text(text=domain), rdtype=dns.rdatatype.A, flags=dns.flags.from_text("RD QR"))
-    query.set_opcode(dns.opcode.QUERY)
-    # Send a query and generate a signature
-    try:
-        response = dns.query.udp(q=query, where=target, timeout=5)
-        signature = parse_response_header(signature=get_signature(),response=response)
-    except dns.exception.Timeout:
-        signature = {"error": "Timeout"}
-
-    return signature
-
-
-def test_tc(target, domain):
-    """
-    Send a recursive query with truncated flag set:
-
-    - Opcode: Query
-    - Flags: TC RD
-    - Question: <custom_domain> A
-
-    """
-
-    # Build a query
-    query = dns.message.make_query(qname=dns.name.from_text(text=domain), rdtype=dns.rdatatype.A, flags=dns.flags.from_text("TC RD"))
-    query.set_opcode(dns.opcode.QUERY)
-    # Send a query and generate a signature
-    try:
-        response = dns.query.udp(q=query, where=target, timeout=5)
-        signature = parse_response_header(signature=get_signature(),response=response)
-    except dns.exception.Timeout:
-        signature = {"error": "Timeout"}
-
-    return signature
-
-
-def test_zero_ttl(target, domain):
-    """
-    Send the simplest request for a zone with 0 TTL:
-
-    - Opcode: Query
-    - Flags: RD
-    - Question: zero-ttl.<custom_domain> A 
-
-    Assumption: resolver's minimum TTL were not reconfigured
-    """
-
-    # Build a query
-    query = dns.message.make_query(qname=dns.name.from_text(text=domain), rdtype=dns.rdatatype.A, flags=dns.flags.from_text("RD"))
-    query.set_opcode(dns.opcode.QUERY)
-    # Send a query and generate a signature
-    try: 
-        response = dns.query.udp(q=query, where=target, timeout=5)
-        signature = parse_response_header_ttl(signature=get_signature_ttl(),response=response)
-    except dns.exception.Timeout:
-        signature = {"error": "Timeout"}
-    
-    return signature
-
-
-def test_edns0(target, domain):
-    """
-    Send the recursive query signalling the support of EDNS(0):
-
-    - Opcode: Query
-    - Flags: RD
-    - Question: <custom_domain> A 
-    - EDNS(0): no options, payload 512
-
-    Assumption: RFC 2671 (Extension Mechanisms for DNS (EDNS0)) supported.
-    """
-
-    # Build a query
-    query = dns.message.make_query(qname=dns.name.from_text(text=domain), rdtype=dns.rdatatype.A, flags=dns.flags.from_text("RD"))
-    query.use_edns(edns = True, payload=512)
-    query.set_opcode(dns.opcode.QUERY)
-    # Send a query and generate a signature
-    try: 
-        response = dns.query.udp(q=query, where=target, timeout=5)
-        signature = parse_response_header(signature=get_signature(),response=response)
-    except dns.exception.Timeout:
-        signature = {"error": "Timeout"}
-    
-    return signature
-
-
-def test_local_zone(target, domain):
-    """
-    Send a PTR query for the locally served zone:
-
-    - Opcode: Query
-    - Flags: RD
-    - Question: <locally_served_zone> PTR
-
-    Assumption: RFC 6303 (Locally Served DNS Zones) supported.
-    """
-
-    # Build a query
-    query = dns.message.make_query(qname=dns.name.from_text(text=domain), rdtype=dns.rdatatype.PTR, flags=dns.flags.from_text("RD"))
-    query.use_edns(edns = True, payload=512)
-    query.set_opcode(dns.opcode.QUERY)
-    # Send a query and generate a signature
-    try: 
-        response = dns.query.udp(q=query, where=target, timeout=10)
-        signature = parse_response_header(signature=get_signature(),response=response)
-    except dns.exception.Timeout:
-        signature = {"error": "Timeout"}
-    
-    return signature
+query_options = {
+    "subdomain": ["baseline"],
+    "resource_record": ["A"],
+    "class": ["IN"],
+    "opcode": ["QUERY"],
+    "flag_qr": [""],
+    "flag_aa": [""],
+    "flag_tc": [""],
+    "flag_rd": ["RD"],
+    "flag_ra": [""],
+}
