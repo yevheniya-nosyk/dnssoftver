@@ -149,11 +149,12 @@ if __name__ == '__main__':
     repeats = 5
     while repeats:
 
-        # Process 50 images at a time
-        for i in range(0,len(images),50):
+        # Process 75 images at a time
+        batch_size = 75
+        for i in range(0,len(images),batch_size):
 
             # Local batch of 50 images that we will create containers from
-            images_local = images[i:i+50]
+            images_local = images[i:i+batch_size]
 
             # Start containers and store container IDs
             with multiprocessing.Pool(15) as p:
@@ -181,7 +182,7 @@ if __name__ == '__main__':
                 targets.append(("windows-server:2016",os.getenv("WS_IP_2016")))
 
             # Execute queries and store results for each software vendor inside the results list
-            with multiprocessing.pool.ThreadPool(50) as p:
+            with multiprocessing.pool.ThreadPool(batch_size) as p:
                 results_local = p.starmap(fingerprint_resolver,targets)
             
             # Write the local result to the main results dictionnary
