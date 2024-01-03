@@ -98,11 +98,6 @@ def get_targets(containers_list, network_custom):
         container_image = container.attrs["Config"]["Image"]
         targets.append((container_image, container_ip))
 
-    # Additionally, get IP addresses of machines running Windows Server
-    targets.append(("windows-server:2022",os.getenv("WS_IP_2022")))
-    targets.append(("windows-server:2019",os.getenv("WS_IP_2019")))
-    targets.append(("windows-server:2016",os.getenv("WS_IP_2016")))
-
     return targets
 
 
@@ -155,37 +150,49 @@ if __name__ == '__main__':
     repeats = 5
     while repeats:
 
-        # Start containers and store container IDs
-        with multiprocessing.Pool(15) as p:
-            containers = p.map(run_container,images)
+        # Process 50 images at a time
+        for i in range(0,len(images),50):
 
-        # Wait until all the containers are running
-        for container_id in containers:
-            # Recreate the container object
-            container = client.containers.get(container_id=container_id)
-            # Set the condition
-            status = container.status
-            while status != "running":
-                time.sleep(5)
-                container.reload()
+            # Local batch of 50 images that we will create containers from
+            images_local = images[i:i+50]
+
+            # Start containers and store container IDs
+            with multiprocessing.Pool(15) as p:
+                containers = p.map(run_container,images_local)
+
+            # Wait until all the containers are running
+            for container_id in containers:
+                # Recreate the container object
+                container = client.containers.get(container_id=container_id)
+                # Set the condition
                 status = container.status
+                while status != "running":
+                    time.sleep(5)
+                    container.reload()
+                    status = container.status
 
-        # Generate targets to scan (software, IP)
-        # This includes containers + Windows machines
-        targets = get_targets(containers_list=containers, network_custom=fpdns_network.name)
-        
-        # Execute queries and store results for each software vendor inside the results list
-        with multiprocessing.pool.ThreadPool(100) as p:
-            results_local = p.starmap(fingerprint_resolver,targets)
-        
-        # Write the local result to the main results dictionnary
-        for result in results_local:
-            for software in result:
-                results[software][f"round_{repeats}"] = result[software]
+            # Generate targets to scan (software, IP)
+            # This includes containers + Windows machines
+            targets = get_targets(containers_list=containers, network_custom=fpdns_network.name)
 
-        # Remove containers
-        with multiprocessing.Pool(15) as p:
-            p.map(remove_container,containers)
+            # Additionally, get IP addresses of machines running Windows Server, but only once
+            if ("windows-server:2022" not in results) or (f"round_{repeats}" not in results["windows-server:2022"]):
+                targets.append(("windows-server:2022",os.getenv("WS_IP_2022")))
+                targets.append(("windows-server:2019",os.getenv("WS_IP_2019")))
+                targets.append(("windows-server:2016",os.getenv("WS_IP_2016")))
+
+            # Execute queries and store results for each software vendor inside the results list
+            with multiprocessing.pool.ThreadPool(50) as p:
+                results_local = p.starmap(fingerprint_resolver,targets)
+            
+            # Write the local result to the main results dictionnary
+            for result in results_local:
+                for software in result:
+                    results[software][f"round_{repeats}"] = result[software]
+
+            # Remove containers
+            with multiprocessing.Pool(15) as p:
+                p.map(remove_container,containers)
 
         repeats -= 1
 
