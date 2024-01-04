@@ -42,6 +42,11 @@ def generate_dns_query(q_options):
         signature = {"error": "Timeout after 5 seconds"}
     except dns.query.BadResponse as e:
         signature = {"error": str(e)}
+    except Exception as e:
+        # Catch any other exception
+        signature = {"other_exception": str(e)}
+
+    print("I am done!", flush=True)
 
     return {"software": q_options["software"], "query_name": q_options["query_name"], "signature": signature}
 
