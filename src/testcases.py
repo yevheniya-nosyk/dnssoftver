@@ -21,7 +21,7 @@ def generate_dns_query(q_options):
 
     # Build the DNS query
     query = dns.message.make_query(
-        qname=dns.name.from_text(text=f"{random_subdomain}.{q_options['query_options']['subdomain']}.{os.getenv('DOMAIN')}"), 
+        qname=dns.name.from_text(text=f"{random_subdomain}.{q_options['query_options']['domain']}"), 
         rdtype=dns.rdatatype.from_text(text=q_options["query_options"]["resource_record"]), 
         rdclass=dns.rdataclass.from_text(text=q_options["query_options"]["class"]),
         flags=dns.flags.from_text(text=flags)
@@ -85,7 +85,7 @@ dotenv.load_dotenv()
 # Empty strings signify that the corresponding flags are not set.
 
 query_options = {
-    "subdomain": ["baseline"],
+    "domain": [f"baseline.{os.getenv('DOMAIN')}"],
     "resource_record": ["A"],
     "class": ["RESERVED0", "IN", "CH", "HS", "NONE", "ANY"],
     "opcode": ["QUERY", "IQUERY", "STATUS", "NOTIFY"],

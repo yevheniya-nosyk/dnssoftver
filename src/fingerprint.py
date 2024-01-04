@@ -112,7 +112,7 @@ def generate_queries(query_targets):
     for target in query_targets:
         for query_combo in (dict(zip(testcases.query_options.keys(), values)) for values in itertools.product(*testcases.query_options.values())):
             # Assign this query a name
-            query_name = "_".join([query_combo[i] for i in query_combo if query_combo[i]])
+            query_name = "_".join([query_combo[i] for i in query_combo if query_combo[i]]).replace(f".{os.getenv('DOMAIN')}", "")
             # Create a dictionnary with all the query options that will be passed to testcases.generate_dns_query()
             query = {
                 "query_name": query_name,
