@@ -35,7 +35,7 @@ def generate_dns_query(q_options):
         response = dns.query.udp(q=query, where=q_options["ip"], timeout=5) 
         signature = parse_dns_query(response=response)
     except dns.exception.Timeout:
-        signature = {"error": "Timeout after 10 seconds"}
+        signature = {"error": "Timeout after 5 seconds"}
     except dns.query.BadResponse as e:
         signature = {"error": str(e)}
 
