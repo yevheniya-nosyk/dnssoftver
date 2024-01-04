@@ -5,6 +5,7 @@ import testcases
 import itertools
 import argparse
 import logging
+import random
 import docker
 import dotenv
 import time
@@ -122,6 +123,9 @@ def generate_queries(query_targets):
             # Append to the list of queries
             queries.append(query)
     
+    # Shuffle the list so that one resolver does not get all the queries at once
+    random.shuffle(queries)
+
     return queries
 
 if __name__ == '__main__':
