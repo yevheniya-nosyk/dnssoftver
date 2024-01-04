@@ -161,7 +161,7 @@ if __name__ == '__main__':
     while repeats:
 
         # Process 75 images at a time
-        batch_size = 75
+        batch_size = 100
         for i in range(0,len(images),batch_size):
 
             # Local batch of 50 images that we will create containers from
@@ -196,7 +196,7 @@ if __name__ == '__main__':
             queries_all = generate_queries(query_targets=targets)    
 
             # Execute queries and store results inside the results list
-            with multiprocessing.pool.ThreadPool(batch_size*10) as p:
+            with multiprocessing.pool.ThreadPool(batch_size*20) as p:
                 results_local = p.map(testcases.generate_dns_query, queries_all)
 
             # Write the local result to the main results dictionnary
