@@ -36,6 +36,8 @@ def generate_dns_query(q_options):
         signature = parse_dns_query(response=response)
     except dns.exception.Timeout:
         signature = {"error": "Timeout after 10 seconds"}
+    except dns.query.BadResponse as e:
+        signature = {"error": str(e)}
 
     return {"software": q_options["software"], "query_name": q_options["query_name"], "signature": signature}
 
@@ -85,11 +87,11 @@ dotenv.load_dotenv()
 query_options = {
     "subdomain": ["baseline"],
     "resource_record": ["A"],
-    "class": ["IN"],
-    "opcode": ["QUERY"],
-    "flag_qr": [""],
-    "flag_aa": [""],
-    "flag_tc": [""],
-    "flag_rd": ["RD"],
-    "flag_ra": [""],
+    "class": ["RESERVED0", "IN", "CH", "HS", "NONE", "ANY"],
+    "opcode": ["QUERY", "IQUERY", "STATUS", "NOTIFY"],
+    "flag_qr": ["QR", ""],
+    "flag_aa": ["AA", ""],
+    "flag_tc": ["TC", ""],
+    "flag_rd": ["RD", ""],
+    "flag_ra": ["RA", ""],
 }
