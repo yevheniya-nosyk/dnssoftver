@@ -13,15 +13,19 @@ def random_string():
 def generate_dns_query(q_options):
     """Craft a DNS query and send it"""
 
-    # Generate a random subdomain
-    random_subdomain = random_string()
+    # Generate the query name, which will contain a random subdomain
+    # unless the domain name is special
+    if os.getenv('DOMAIN') in q_options['query_options']['domain']:
+        domain = random_string() + "." + q_options['query_options']['domain']
+    else:
+        domain = q_options['query_options']['domain']
 
     # Extract flags from the query options and concatenate to a string
     flags = " ".join([q_options["query_options"][i] for i in q_options["query_options"] if i.startswith("flag_") if q_options["query_options"][i]])
 
     # Build the DNS query
     query = dns.message.make_query(
-        qname=dns.name.from_text(text=f"{random_subdomain}.{q_options['query_options']['domain']}"), 
+        qname=dns.name.from_text(text=domain), 
         rdtype=dns.rdatatype.from_text(text=q_options["query_options"]["resource_record"]), 
         rdclass=dns.rdataclass.from_text(text=q_options["query_options"]["class"]),
         flags=dns.flags.from_text(text=flags)
@@ -85,7 +89,7 @@ dotenv.load_dotenv()
 # Empty strings signify that the corresponding flags are not set.
 
 query_options = {
-    "domain": [f"baseline.{os.getenv('DOMAIN')}"],
+    "domain": [f"baseline.{os.getenv('DOMAIN')}", "1.2.3.4"],
     "resource_record": ["A"],
     "class": ["RESERVED0", "IN", "CH", "HS", "NONE", "ANY"],
     "opcode": ["QUERY", "IQUERY", "STATUS", "NOTIFY"],
