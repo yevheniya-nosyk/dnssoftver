@@ -207,12 +207,12 @@ if __name__ == '__main__':
             with multiprocessing.Pool(15) as p:
                 p.map(remove_container,containers)
 
-        repeats -= 1
+        # Save the results after every round
+        with open(f"{work_dir}/signatures/signatures_{args.versions}.json", "w") as f: 
+            for result in results:
+                f.write(f"{json.dumps({result:results[result]})}\n")
 
-    # Save the results
-    with open(f"{work_dir}/signatures/signatures_{args.versions}.json", "w") as f: 
-        for result in results:
-            f.write(f"{json.dumps({result:results[result]})}\n")
+        repeats -= 1
 
     # Remove the Docker network
     fpdns_network.remove()
