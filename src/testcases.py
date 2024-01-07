@@ -46,8 +46,6 @@ def generate_dns_query(q_options):
         # Catch any other exception
         signature = {"other_exception": str(e)}
 
-    print("I am done!", flush=True)
-
     return {"software": q_options["software"], "query_name": q_options["query_name"], "signature": signature}
 
 
