@@ -15,7 +15,7 @@ def generate_dns_query(q_options):
 
     # Generate the query name, which will contain a random subdomain
     # unless the domain name is special
-    if os.getenv('DOMAIN') in q_options['query_options']['domain']:
+    if os.getenv('DOMAIN') in q_options['query_options']['domain'] or "." not in q_options['query_options']['domain']:
         domain = random_string() + "." + q_options['query_options']['domain']
     else:
         domain = q_options['query_options']['domain']
@@ -120,7 +120,15 @@ query_options = {
         "b.e.f.ip6.arpa",
         "8.b.d.0.1.0.0.2.ip6.arpa",
         "home.arpa",
-        "resolver.arpa"
+        "resolver.arpa",
+        "ipv4only.arpa",
+        "alt",
+        "invalid",
+        "example",
+        "local",
+        "localhost",
+        "onion",
+        "test"
         ],
     "resource_record": ["A"],
     "class": ["RESERVED0", "IN", "CH", "HS", "NONE", "ANY"],
