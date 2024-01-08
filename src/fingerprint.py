@@ -160,7 +160,7 @@ if __name__ == '__main__':
     repeats = 5
     while repeats:
 
-        # Process 75 images at a time
+        # Process 100 images at a time
         batch_size = 100
         for i in range(0,len(images),batch_size):
 
