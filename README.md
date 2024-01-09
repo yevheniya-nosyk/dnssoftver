@@ -1,6 +1,6 @@
-# fpdns
+# dnssoftver
 
-A tool to fingerprint DNS resolver software.
+A tool to fingerprint DNS resolver software versions.
 
 ## Software
 
