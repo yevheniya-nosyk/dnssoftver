@@ -156,8 +156,8 @@ if __name__ == '__main__':
     # Store testing results in the list
     results = collections.defaultdict(lambda: collections.defaultdict(dict))
 
-    # Repeat all the tests 5 times
-    repeats = 5
+    # Repeat all the tests 15 times
+    repeats = 15
     while repeats:
 
         # Process 100 images at a time
