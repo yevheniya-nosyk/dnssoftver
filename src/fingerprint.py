@@ -133,6 +133,7 @@ if __name__ == '__main__':
     # Parse command-line arguments
     parser = argparse.ArgumentParser()
     parser.add_argument('-v', '--versions', required=True, choices=["minor", "all"], type=str)
+    parser.add_argument('-r', '--repeats', required=True, default=10, type=int)
     args = parser.parse_args()
 
     # Get the working directory
@@ -157,7 +158,7 @@ if __name__ == '__main__':
     results = collections.defaultdict(lambda: collections.defaultdict(dict))
 
     # Repeat all the tests 15 times
-    repeats = 15
+    repeats = args.repeats
     while repeats:
 
         # Process 100 images at a time
