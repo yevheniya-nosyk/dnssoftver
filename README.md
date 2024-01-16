@@ -1,6 +1,7 @@
 # dnssoftver
 
 A tool to fingerprint DNS resolver software.
+
 All the supported versions are in `SOFTWARE.md`.
 
 ## Prerequisites 
