@@ -33,10 +33,12 @@ Create a `.env` file in the root of this repository and gradually add variables 
 
 ### Python
 
+This project requires Python 3.10.
+
 Create the virutal environment and install the requirements:
 
 ```bash
-$ python3 -m virtualenv -p python3 .venv
+$ python3 -m virtualenv -p python3.10 .venv
 $ source .venv/bin/activate
 $ pip3 install -r requirements.txt
 ```

@@ -75,10 +75,10 @@ def parse_dns_query(response):
     # Add other header data into the signature
     signature["Opcode"] = dns.opcode.to_text(response.opcode())
     signature["RCODE"] = dns.rcode.to_text(response.rcode())
-    signature["QDCOUNT"] = response.qcount
-    signature["ANCOUNT"] = response.ancount
-    signature["NSCOUNT"] = response.aucount
-    signature["ARCOUNT"] = response.adcount
+    signature["QDCOUNT"] = response.section_count("QUESTION")
+    signature["ANCOUNT"] = response.section_count("ANSWER")
+    signature["NSCOUNT"] = response.section_count("AUTHORITY")
+    signature["ARCOUNT"] = response.section_count("ADDITIONAL")
 
     # Return the signature
     return signature
