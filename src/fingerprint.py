@@ -197,7 +197,7 @@ if __name__ == '__main__':
             queries_all = generate_queries(query_targets=targets)    
 
             # Execute queries and store results inside the results list
-            with multiprocessing.pool.ThreadPool(batch_size*10) as p:
+            with multiprocessing.pool.ThreadPool(len(targets)) as p:
                 results_local = p.map(testcases.generate_dns_query, queries_all)
 
             # Write the local result to the main results dictionnary
