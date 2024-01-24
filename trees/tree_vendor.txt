@@ -1,19 +1,19 @@
-|--- baseline_A_HS_IQUERY_TC_RA---AA-0_ANCOUNT-0_ARCOUNT-0_NSCOUNT-0_Opcode-IQUERY_QDCOUNT-0_QR-1_RA-0_RCODE-NOTIMP_RD-0_TC-0 <= 0.50
-|   |--- baseline_A_ANY_QUERY_AA---AA-0_ANCOUNT-0_ARCOUNT-0_NSCOUNT-0_Opcode-QUERY_QDCOUNT-1_QR-1_RA-1_RCODE-NOERROR_RD-0_TC-0 <= 0.50
-|   |   |--- baseline_A_NONE_QUERY_AA_TC---AA-1_ANCOUNT-0_ARCOUNT-0_NSCOUNT-0_Opcode-QUERY_QDCOUNT-1_QR-1_RA-0_RCODE-FORMERR_RD-0_TC-0 <= 0.50
-|   |   |   |--- baseline_A_IN_QUERY_AA---error-Timeout after 5 seconds <= 0.50
-|   |   |   |   |--- baseline_A_IN_STATUS_AA_TC_RD_RA---AA-0_ANCOUNT-3_ARCOUNT-0_NSCOUNT-0_Opcode-STATUS_QDCOUNT-1_QR-1_RA-1_RCODE-NOERROR_RD-1_TC-0 <= 0.50
-|   |   |   |   |   |--- baseline_A_RESERVED0_IQUERY_TC_RD_RA---error-Timeout after 5 seconds <= 0.50
+|--- baseline_A_HS_STATUS_RA---AA-0_ANCOUNT-0_ARCOUNT-0_NSCOUNT-0_Opcode-STATUS_QDCOUNT-0_QR-1_RA-0_RCODE-NOTIMP_RD-0_TC-0 <= 0.50
+|   |--- baseline_A_IN_QUERY_AA---AA-0_ANCOUNT-0_ARCOUNT-0_NSCOUNT-0_Opcode-QUERY_QDCOUNT-1_QR-1_RA-1_RCODE-NOERROR_RD-0_TC-0 <= 0.50
+|   |   |--- baseline_A_IN_STATUS_AA_TC_RD_RA---AA-1_ANCOUNT-0_ARCOUNT-0_NSCOUNT-0_Opcode-STATUS_QDCOUNT-1_QR-1_RA-1_RCODE-FORMERR_RD-1_TC-0 <= 0.50
+|   |   |   |--- baseline_A_ANY_QUERY_AA_TC---error-Timeout after 5 seconds <= 0.50
+|   |   |   |   |--- baseline_A_IN_STATUS_RD_RA---AA-0_ANCOUNT-3_ARCOUNT-0_NSCOUNT-0_Opcode-STATUS_QDCOUNT-1_QR-1_RA-1_RCODE-NOERROR_RD-1_TC-0 <= 0.50
+|   |   |   |   |   |--- baseline_A_HS_QUERY_AA_RD---error-Timeout after 5 seconds <= 0.50
 |   |   |   |   |   |   |--- class: technitium
-|   |   |   |   |   |--- baseline_A_RESERVED0_IQUERY_TC_RD_RA---error-Timeout after 5 seconds >  0.50
+|   |   |   |   |   |--- baseline_A_HS_QUERY_AA_RD---error-Timeout after 5 seconds >  0.50
 |   |   |   |   |   |   |--- class: windows
-|   |   |   |   |--- baseline_A_IN_STATUS_AA_TC_RD_RA---AA-0_ANCOUNT-3_ARCOUNT-0_NSCOUNT-0_Opcode-STATUS_QDCOUNT-1_QR-1_RA-1_RCODE-NOERROR_RD-1_TC-0 >  0.50
+|   |   |   |   |--- baseline_A_IN_STATUS_RD_RA---AA-0_ANCOUNT-3_ARCOUNT-0_NSCOUNT-0_Opcode-STATUS_QDCOUNT-1_QR-1_RA-1_RCODE-NOERROR_RD-1_TC-0 >  0.50
 |   |   |   |   |   |--- class: knot
-|   |   |   |--- baseline_A_IN_QUERY_AA---error-Timeout after 5 seconds >  0.50
+|   |   |   |--- baseline_A_ANY_QUERY_AA_TC---error-Timeout after 5 seconds >  0.50
 |   |   |   |   |--- class: maradns
-|   |   |--- baseline_A_NONE_QUERY_AA_TC---AA-1_ANCOUNT-0_ARCOUNT-0_NSCOUNT-0_Opcode-QUERY_QDCOUNT-1_QR-1_RA-0_RCODE-FORMERR_RD-0_TC-0 >  0.50
+|   |   |--- baseline_A_IN_STATUS_AA_TC_RD_RA---AA-1_ANCOUNT-0_ARCOUNT-0_NSCOUNT-0_Opcode-STATUS_QDCOUNT-1_QR-1_RA-1_RCODE-FORMERR_RD-1_TC-0 >  0.50
 |   |   |   |--- class: unbound
-|   |--- baseline_A_ANY_QUERY_AA---AA-0_ANCOUNT-0_ARCOUNT-0_NSCOUNT-0_Opcode-QUERY_QDCOUNT-1_QR-1_RA-1_RCODE-NOERROR_RD-0_TC-0 >  0.50
+|   |--- baseline_A_IN_QUERY_AA---AA-0_ANCOUNT-0_ARCOUNT-0_NSCOUNT-0_Opcode-QUERY_QDCOUNT-1_QR-1_RA-1_RCODE-NOERROR_RD-0_TC-0 >  0.50
 |   |   |--- class: pdns
-|--- baseline_A_HS_IQUERY_TC_RA---AA-0_ANCOUNT-0_ARCOUNT-0_NSCOUNT-0_Opcode-IQUERY_QDCOUNT-0_QR-1_RA-0_RCODE-NOTIMP_RD-0_TC-0 >  0.50
+|--- baseline_A_HS_STATUS_RA---AA-0_ANCOUNT-0_ARCOUNT-0_NSCOUNT-0_Opcode-STATUS_QDCOUNT-0_QR-1_RA-0_RCODE-NOTIMP_RD-0_TC-0 >  0.50
 |   |--- class: bind9

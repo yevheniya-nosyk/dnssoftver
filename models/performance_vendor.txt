@@ -1,0 +1,12 @@
+Accuracy: 0.9995054401582592
+---
+The total number of features: 3582
+  Important features: 6
+  Not important features: 3576
+---
+The total number of testcases: 768
+  Important testcases: 6
+  Not important testcases: 762
+---
+All versions: 7
+  Individual versions: 7

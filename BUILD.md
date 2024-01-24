@@ -90,8 +90,8 @@ The signatures are stored in `signatures/signatures_[all,minor].json`.
 
 ## Classification
 
-We address the classification problem using decision trees built with `scikit-learn`. The following Jupyter notebooks contain the models to distinguish software vendors, minor, and build versions:
+We address the classification problem using decision trees built with `scikit-learn`. The following script builds models and saves the text representation of trees to `trees/` and the summary to `models`:
 
-- `src/decision_tree_vendor.ipynb`
-- `src/decision_tree_minor.ipynb`
-- `src/decision_tree_build.ipynb`
+```bash
+$ python3 src/build_models.py --granularity [vendor,minor,build]
+```
