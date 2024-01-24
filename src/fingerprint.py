@@ -42,7 +42,7 @@ def get_images(docker_client, work_dir_path):
     images_local = [image.tags[0] for image in docker_client.images.list() if image.tags]
 
     # Read the list of software
-    with open(f"{work_dir}/software/versions_{args.versions}.txt", "r") as f:
+    with open(f"{work_dir}/software/versions_all.txt", "r") as f:
         software_all = list(csv.reader(f))
         for software in software_all:
             # Extract vendor and version information
@@ -146,7 +146,6 @@ if __name__ == '__main__':
 
     # Parse command-line arguments
     parser = argparse.ArgumentParser()
-    parser.add_argument('-v', '--versions', required=True, choices=["minor", "all"], type=str)
     parser.add_argument('-r', '--repeats', required=True, default=10, type=int)
     args = parser.parse_args()
 
@@ -223,7 +222,7 @@ if __name__ == '__main__':
                 p.map(remove_container,containers)
 
         # Save the results after every round
-        with open(f"{work_dir}/signatures/signatures_{args.versions}.json", "w") as f: 
+        with open(f"{work_dir}/signatures/signatures_all.json", "w") as f: 
             for result in results:
                 f.write(f"{json.dumps({result:results[result]})}\n")
 

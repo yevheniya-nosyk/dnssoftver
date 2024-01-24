@@ -83,7 +83,7 @@ $ docker rmi <your_image_name>
 The script below builds docker images, starts containers in their own network, queries resolvers, processes the responses, generates signatures, and cleans up. Run it:
 
 ```bash
-$ python3 src/fingerprint.py --versions [minor,all]
+$ python3 src/fingerprint.py --repeats <number_of_times_to_repeat_tests>
 ```
 
 The signatures are stored in `signatures/signatures_[all,minor].json`.
