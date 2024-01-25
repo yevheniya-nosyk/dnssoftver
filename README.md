@@ -7,3 +7,7 @@ All the supported versions are in `SOFTWARE.md`.
 ## Build from scratch
 
 If you wish to launch all the software, issue test cases, generate fingerprints and models, follow the instructions in `BUILD.md`.
+
+## How to contribute
+
+Read `CONTRIBUTING.md`.
