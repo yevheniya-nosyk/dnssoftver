@@ -40,6 +40,11 @@ def read_input_file(filename, granularity):
                 # Keep the software name (will depend on the granularity type)
                 if granularity == "vendor":
                     software_name = software.split("-")[0]
+                elif granularity == "major":
+                    if "." in software:
+                        software_name = software.split(".")[0]
+                    else:
+                        software_name = software
                 elif granularity == "minor":
                     if software.count(".") > 1:
                         software_name = ".".join(software.replace(":latest", "").split(".")[:2])
@@ -178,7 +183,7 @@ if __name__ == '__main__':
 
     # Parse command-line arguments
     parser = argparse.ArgumentParser()
-    parser.add_argument('-g', '--granularity', required=True, choices=["vendor", "minor", "build"], type=str, help="The fingerprinting granularity")
+    parser.add_argument('-g', '--granularity', required=True, choices=["vendor", "major", "minor", "build"], type=str, help="The fingerprinting granularity")
     args = parser.parse_args()
 
     # Get the working directory

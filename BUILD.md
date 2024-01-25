@@ -93,5 +93,5 @@ The signatures are stored in `signatures/signatures_[all,minor].json`.
 We address the classification problem using decision trees built with `scikit-learn`. The following script builds models and saves the text representation of trees to `trees/` and the summary to `models`:
 
 ```bash
-$ python3 src/build_models.py --granularity [vendor,minor,build]
+$ python3 src/build_models.py --granularity [vendor,major,minor,build]
 ```
