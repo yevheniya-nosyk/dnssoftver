@@ -190,7 +190,7 @@ if __name__ == '__main__':
     work_dir = get_work_dir()
 
     # Read the input file with test results and save it as one entry per software per run
-    input_data = read_input_file(filename=f"{work_dir}/signatures/backups/signatures_all_5t.json", granularity=args.granularity)
+    input_data = read_input_file(filename=f"{work_dir}/signatures/signatures_all.json", granularity=args.granularity)
 
     # Some signatures can correspond to multiple labels
     # However, in this case the decision tree will not work correctly
