@@ -18,6 +18,7 @@ import sklearn.metrics
 import collections
 import argparse
 import sklearn
+import pickle
 import pandas
 import json
 import os
@@ -116,7 +117,7 @@ def data_to_df(data_merged):
     return df_one_hot
 
 
-def create_model(data,tree_file, performance_file):
+def create_model(data,tree_file, performance_file, model_file):
     """Create a Decision tree"""
 
     # Split the dataset into features and target variables
@@ -131,6 +132,10 @@ def create_model(data,tree_file, performance_file):
     clf = clf.fit(X_train,y_train)
     # Predict the response for test dataset
     y_pred = clf.predict(X_test)
+
+    # Pickle the model to use it during the scanning stage
+    with open(model_file, "wb") as f:
+        pickle.dump(clf, f)
 
     # Print the decision tree, but make feature names more human-readable
     features_one_hot = data.columns.difference(["label"], sort=False).tolist()
@@ -201,4 +206,4 @@ if __name__ == '__main__':
     input_data_df = data_to_df(data_merged=input_data_merged_labels)
 
     # Create the model
-    create_model(data=input_data_df, tree_file=f"{work_dir}/trees/tree_{args.granularity}.txt", performance_file=f"{work_dir}/models/performance_{args.granularity}.txt")
+    create_model(data=input_data_df, tree_file=f"{work_dir}/trees/tree_{args.granularity}.txt", performance_file=f"{work_dir}/models/performance_{args.granularity}.txt", model_file=f"{work_dir}/models/model_{args.granularity}.pkl")
