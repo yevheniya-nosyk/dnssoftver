@@ -117,7 +117,7 @@ def data_to_df(data_merged):
     return df_one_hot
 
 
-def create_model(data,tree_file, performance_file, model_file):
+def create_model(data,tree_file, performance_file, model_file, testcase_file):
     """Create a Decision tree"""
 
     # Split the dataset into features and target variables
@@ -183,6 +183,11 @@ def create_model(data,tree_file, performance_file, model_file):
         f.write(f"All versions: {len(versions_all)}\n")
         f.write(f"  Individual versions: {len(labels_individual)}\n")
 
+    # Write testcase names that were used to build trees
+    with open(testcase_file, "w") as f:
+        for testcase in sorted(testcases_important):
+            f.write(f"{testcase}\n")
+
 
 if __name__ == '__main__':
 
@@ -206,4 +211,4 @@ if __name__ == '__main__':
     input_data_df = data_to_df(data_merged=input_data_merged_labels)
 
     # Create the model
-    create_model(data=input_data_df, tree_file=f"{work_dir}/trees/tree_{args.granularity}.txt", performance_file=f"{work_dir}/models/performance_{args.granularity}.txt", model_file=f"{work_dir}/models/model_{args.granularity}.pkl")
+    create_model(data=input_data_df, tree_file=f"{work_dir}/trees/tree_{args.granularity}.txt", performance_file=f"{work_dir}/models/performance_{args.granularity}.txt", model_file=f"{work_dir}/models/model_{args.granularity}.pkl", testcase_file=f"{work_dir}/queries/queries_{args.granularity}.txt")
