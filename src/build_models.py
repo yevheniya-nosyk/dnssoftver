@@ -124,7 +124,7 @@ def create_model(data,tree_file, performance_file, model_file, testcase_file):
     X = data.loc[:, data.columns != 'label']
     y = data.label
     # Split dataset into training set and test set
-    X_train, X_test, y_train, y_test = sklearn.model_selection.train_test_split(X, y, test_size=0.2, random_state=1) 
+    X_train, X_test, y_train, y_test = sklearn.model_selection.train_test_split(X, y, test_size=0.3, random_state=1) 
 
     # Create Decision Tree classifer object
     clf = sklearn.tree.DecisionTreeClassifier(random_state=1)
