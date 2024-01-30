@@ -60,7 +60,11 @@ def generate_dns_query(q_options):
         # Catch any other exception
         signature = {"other_exception": str(e)}
 
-    return {"software": q_options["software"], "query_name": q_options["query_name"], "signature": signature}
+    if "software" in q_options:
+        return {"software": q_options["software"], "query_name": q_options["query_name"], "signature": signature}
+    else:
+        return {"ip": q_options["ip"], "query_name": q_options["query_name"], "signature": signature}
+        
 
 
 def parse_dns_query(response):

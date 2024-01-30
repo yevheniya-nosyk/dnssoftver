@@ -117,7 +117,7 @@ def get_targets(containers_list, network_custom):
     return targets
 
 
-def generate_queries(query_targets):
+def generate_queries(query_targets,is_scanner=False):
     """Generate all the possible query combinations"""
 
     # Will store the result
@@ -128,12 +128,19 @@ def generate_queries(query_targets):
             # Assign this query a name
             query_name = "_".join([query_combo[i] for i in query_combo if query_combo[i]]).replace(f".{os.getenv('DOMAIN')}", "")
             # Create a dictionnary with all the query options that will be passed to testcases.generate_dns_query()
-            query = {
-                "query_name": query_name,
-                "software": target[0],
-                "ip": target[1],
-                "query_options": query_combo
-            }
+            if is_scanner:
+                query = {
+                    "query_name": query_name,
+                    "ip": target,
+                    "query_options": query_combo
+                }
+            else:
+                query = {
+                    "query_name": query_name,
+                    "software": target[0],
+                    "ip": target[1],
+                    "query_options": query_combo
+                }
             # Append to the list of queries
             queries.append(query)
     
