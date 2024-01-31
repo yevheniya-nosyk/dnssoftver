@@ -22,10 +22,13 @@ import argparse
 import warnings
 import logging
 import pickle
-import pandas
 import json
 import os
 
+# Ignore the Pandas DeprecationWarning
+with warnings.catch_warnings():
+    warnings.simplefilter(action="ignore", category=DeprecationWarning)
+    import pandas
 
 def get_work_dir():
     """Find the path to the project's work directory"""
