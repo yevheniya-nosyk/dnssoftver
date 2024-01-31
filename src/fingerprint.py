@@ -207,6 +207,9 @@ if __name__ == '__main__':
             # This includes containers + Windows machines
             targets = get_targets(containers_list=containers, network_custom=fpdns_network.name)
 
+            for i in targets:
+                print(f"{i[0].replace(':latest', '')},{i[1]}")
+
             # Additionally, get IP addresses of machines running Windows Server, but only once
             if ("windows-server:2022" not in results) or (f"round_{repeats}" not in results["windows-server:2022"]):
                 targets.append(("windows-server:2022",os.getenv("WS_IP_2022")))
