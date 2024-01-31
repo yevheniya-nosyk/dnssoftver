@@ -1,4 +1,4 @@
-Accuracy: 1.0
+Accuracy: 0.9998351467194198
 ---
 The total number of features: 3671
   Important features: 6

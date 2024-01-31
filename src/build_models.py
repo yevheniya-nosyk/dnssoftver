@@ -211,4 +211,4 @@ if __name__ == '__main__':
     input_data_df = data_to_df(data_merged=input_data_merged_labels)
 
     # Create the model
-    create_model(data=input_data_df, tree_file=f"{work_dir}/trees/tree_{args.granularity}.txt", performance_file=f"{work_dir}/models/performance_{args.granularity}.txt", model_file=f"{work_dir}/models/model_{args.granularity}.pkl", testcase_file=f"{work_dir}/queries/queries_{args.granularity}.txt")
+    create_model(data=input_data_df, tree_file=f"{work_dir}/data/trees/tree_{args.granularity}.txt", performance_file=f"{work_dir}/data/models/performance_{args.granularity}.txt", model_file=f"{work_dir}/data/models/model_{args.granularity}.pkl", testcase_file=f"{work_dir}/data/queries/queries_{args.granularity}.txt")
