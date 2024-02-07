@@ -41,9 +41,7 @@ $ pip3 install -r requirements.txt
 
 ### Domain name
 
-We need a custom domain to be queried during our tests. You can already use the one we provide (`dnssoftver.com`).
-
-If using your custom domain name, please save it under `DOMAIN` variable inside `.env`. Then, configure the domain names using templates in `configs/domain/` where you should replace everything between `<>`. Note that it requires a parent and a child nameservers.
+We need a custom domain to be queried during our tests. By default, we use `dnssoftver.com`.
 
 ## Installation
 
