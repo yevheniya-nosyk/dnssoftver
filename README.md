@@ -23,7 +23,7 @@ $ pip3 install -r requirements.txt
 The input to the scanner is a text file with one IP address per line. The output is a JSON file:
 
 ```bash
-$ python3 src/scan.py --input_file <input_file> -output_file <output_file> --granularity [vendor,major,minor,build] --threads <num_of_threads>
+$ python3 src/scan.py --input_file <input_file> --output_file <output_file> --granularity [vendor,major,minor,build] --threads <num_of_threads>
 ```
 
 Example output:
