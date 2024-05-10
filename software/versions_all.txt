@@ -343,6 +343,8 @@ knot-resolver/5.5/5.5.2,remote,cznic/knot-resolver
 knot-resolver/5.5/5.5.3,remote,cznic/knot-resolver
 knot-resolver/5.6/5.6.0,remote,cznic/knot-resolver
 knot-resolver/5.7/5.7.0,remote,cznic/knot-resolver
+knot-resolver/5.7/5.7.1,remote,cznic/knot-resolver
+knot-resolver/5.7/5.7.2,remote,cznic/knot-resolver
 maradns/2.0/2.0.11,dockerfile
 maradns/2.0/2.0.12,dockerfile
 maradns/2.0/2.0.13,dockerfile
