@@ -550,6 +550,13 @@ technitium/11/11.2,dockerfile
 technitium/11/11.3,dockerfile
 technitium/11/11.4,dockerfile
 technitium/11/11.4.1,dockerfile
+technitium/11/11.5,dockerfile
+technitium/11/11.5.1,dockerfile
+technitium/11/11.5.2,dockerfile
+technitium/11/11.5.3,dockerfile
+technitium/12/12.0,dockerfile
+technitium/12/12.0.1,dockerfile
+technitium/12/12.1,dockerfile
 technitium/2/2.0.0.1,dockerfile
 technitium/2/2.0.1,dockerfile
 technitium/2/2.0.2,dockerfile
