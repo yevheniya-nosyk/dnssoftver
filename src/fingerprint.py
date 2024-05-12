@@ -177,7 +177,7 @@ if __name__ == '__main__':
     # Store testing results in the list
     results = collections.defaultdict(lambda: collections.defaultdict(dict))
 
-    # Repeat all the tests 15 times
+    # Repeat all the tests the number of repeats
     repeats = args.repeats
     while repeats:
 
@@ -185,7 +185,7 @@ if __name__ == '__main__':
         batch_size = 100
         for i in range(0,len(images),batch_size):
 
-            # Local batch of 50 images that we will create containers from
+            # Local batch of images that we will create containers from
             images_local = images[i:i+batch_size]
 
             # Start containers and store container IDs
