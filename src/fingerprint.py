@@ -42,7 +42,7 @@ def get_images(docker_client, work_dir_path):
     images_local = [image.tags[0] for image in docker_client.images.list() if image.tags]
 
     # Read the list of software
-    with open(f"{work_dir}/software/versions_all.txt", "r") as f:
+    with open(f"{work_dir_path}/software/versions_all.txt", "r") as f:
         software_all = list(csv.reader(f))
         for software in software_all:
             # Extract vendor and version information
