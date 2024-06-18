@@ -134,20 +134,31 @@ def generate_queries(query_targets,is_scanner=False):
                     "ip": target,
                     "query_options": query_combo
                 }
-            else:
-                query = {
-                    "query_name": query_name,
-                    "software": target[0],
-                    "ip": target[1],
-                    "query_options": query_combo
-                }
-            # Append to the list of queries
             queries.append(query)
     
     # Shuffle the list so that one resolver does not get all the queries at once
     random.shuffle(queries)
 
     return queries
+
+def execute_queries_all(software_to_fingerprint,ip_to_fingerprint):
+    """Generate all the query combinations and issue them"""
+
+    results_per_software = list()
+    for query_combo in (dict(zip(testcases.query_options.keys(), values)) for values in itertools.product(*testcases.query_options.values())):
+            # Assign this query a name
+            query_name = "_".join([query_combo[i] for i in query_combo if query_combo[i]]).replace(".dnssoftver.com", "")
+            query = {
+                    "query_name": query_name,
+                    "software": software_to_fingerprint,
+                    "ip": ip_to_fingerprint,
+                    "query_options": query_combo
+                }
+            query_response = testcases.generate_dns_query(q_options=query)
+            results_per_software.append(query_response)
+    
+    return results_per_software
+
 
 if __name__ == '__main__':
 
@@ -181,8 +192,8 @@ if __name__ == '__main__':
     repeats = args.repeats
     while repeats:
 
-        # Process 100 images at a time
-        batch_size = 100
+        # Process 400 images at a time
+        batch_size = 400
         for i in range(0,len(images),batch_size):
 
             # Local batch of images that we will create containers from
@@ -213,16 +224,14 @@ if __name__ == '__main__':
                 targets.append(("windows-server:2019",os.getenv("WS_IP_2019")))
                 targets.append(("windows-server:2016",os.getenv("WS_IP_2016")))
 
-            # Generate all the queries to be executed
-            queries_all = generate_queries(query_targets=targets)    
-
             # Execute queries and store results inside the results list
-            with multiprocessing.pool.ThreadPool(len(targets)*3) as p:
-                results_local = p.map(testcases.generate_dns_query, queries_all)
+            with multiprocessing.pool.ThreadPool(len(targets)) as p:
+                results_batch = p.starmap(execute_queries_all, targets)
 
-            # Write the local result to the main results dictionnary
-            for result in results_local:
-                results[result["software"]][f"round_{repeats}"].update({result["query_name"]: result["signature"]})
+            # Write the batch result to the main results dictionnary
+            for software in results_batch:
+                for result in software:
+                    results[result["software"]][f"round_{repeats}"].update({result["query_name"]: result["signature"]})
 
             # Remove containers
             with multiprocessing.Pool(15) as p:
