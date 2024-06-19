@@ -19,7 +19,6 @@ import testcases
 import itertools
 import argparse
 import logging
-import random
 import docker
 import dotenv
 import time
@@ -115,31 +114,6 @@ def get_targets(containers_list, network_custom):
         targets.append((container_image, container_ip))
 
     return targets
-
-
-def generate_queries(query_targets,is_scanner=False):
-    """Generate all the possible query combinations"""
-
-    # Will store the result
-    queries = list()
-
-    for target in query_targets:
-        for query_combo in (dict(zip(testcases.query_options.keys(), values)) for values in itertools.product(*testcases.query_options.values())):
-            # Assign this query a name
-            query_name = "_".join([query_combo[i] for i in query_combo if query_combo[i]]).replace(".dnssoftver.com", "")
-            # Create a dictionnary with all the query options that will be passed to testcases.generate_dns_query()
-            if is_scanner:
-                query = {
-                    "query_name": query_name,
-                    "ip": target,
-                    "query_options": query_combo
-                }
-            queries.append(query)
-    
-    # Shuffle the list so that one resolver does not get all the queries at once
-    random.shuffle(queries)
-
-    return queries
 
 def execute_queries_all(software_to_fingerprint,ip_to_fingerprint):
     """Generate all the query combinations and issue them"""

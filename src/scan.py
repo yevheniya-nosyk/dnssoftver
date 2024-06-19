@@ -13,7 +13,6 @@
 # limitations under the License.
 
 import multiprocessing
-import fingerprint
 import collections
 import testcases
 import ipaddress
@@ -54,6 +53,23 @@ def get_testcases(filename):
             data.append(testcase.strip())
     return data
     
+def execute_queries(ip_to_fingerprint, queries_important):
+    """Generate the necessary testcases for desired fingerprinting granularity only"""
+
+    results_per_ip = list()
+    for query_combo in (dict(zip(testcases.query_options.keys(), values)) for values in itertools.product(*testcases.query_options.values())):
+        # Assign this query a name
+        query_name = "_".join([query_combo[i] for i in query_combo if query_combo[i]]).replace(".dnssoftver.com", "")
+        if query_name in queries_important:
+            query = {
+                    "query_name": query_name,
+                    "ip": ip_to_fingerprint,
+                    "query_options": query_combo
+                }
+            query_response = testcases.generate_dns_query(q_options=query)
+            results_per_ip.append(query_response)
+    
+    return results_per_ip
 
 def get_model_data(data_input,model):
     """Prepare the data for the decision tree"""
@@ -139,7 +155,7 @@ if __name__ == '__main__':
     # We process the input file in chunks
     with open(args.input_file, "r") as f:
         while True:
-            chunk = list(itertools.islice(f, int(args.threads/3)))
+            chunk = list(itertools.islice(f, int(args.threads)))
             if chunk:
                 # Ensure that all the entries in the current chunk are valid IP addresses
                 ips_to_scan = list()
@@ -156,20 +172,17 @@ if __name__ == '__main__':
                 # Process the chunk of IPs if not empty
                 if ips_to_scan:
                     # The number of threads is the minimum of the chunk size and the value passed to the program
-                    threads = min(args.threads,len(ips_to_scan)*3)
-                    # To reuse functions from the fingerprinting stage, we need to create to-scan
-                    # tuples with software names (unknown in this case) and ip addresses
-                    # Generate all the queries possible
-                    queries_all = fingerprint.generate_queries(query_targets=ips_to_scan,is_scanner=True) 
-                    # However, we only need to issue testcases that were used to generate the decision tree
-                    queries_important = [i for i in queries_all if i["query_name"] in testcase_names]
-                    # Run the test cases
+                    threads = min(args.threads,len(ips_to_scan))
+                    # Prepare the tuples of IPs to scan and testcases to issue
+                    targets = [(i,testcase_names) for i in ips_to_scan]
+                    # Execute important testcase only
                     with multiprocessing.pool.ThreadPool(threads) as p:
-                        results= p.map(testcases.generate_dns_query, queries_important)
+                        results= p.starmap(execute_queries, targets)
                     # Group the results obtained above by IP addresses
                     results_chunk = collections.defaultdict(dict)
-                    for result in results:
-                        results_chunk[result["ip"]][result["query_name"]] = result["signature"]
+                    for ip_tested in results:
+                        for testcase in ip_tested:
+                            results_chunk[testcase["ip"]][testcase["query_name"]] = testcase["signature"]
                     # Prepare the query results to be consumed by a model
                     df_results_chunk = get_model_data(data_input=results_chunk,model=decision_tree)
                     # Classify
