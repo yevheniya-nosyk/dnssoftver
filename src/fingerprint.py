@@ -146,16 +146,16 @@ def execute_queries_all(software_to_fingerprint,ip_to_fingerprint):
 
     results_per_software = list()
     for query_combo in (dict(zip(testcases.query_options.keys(), values)) for values in itertools.product(*testcases.query_options.values())):
-            # Assign this query a name
-            query_name = "_".join([query_combo[i] for i in query_combo if query_combo[i]]).replace(".dnssoftver.com", "")
-            query = {
-                    "query_name": query_name,
-                    "software": software_to_fingerprint,
-                    "ip": ip_to_fingerprint,
-                    "query_options": query_combo
-                }
-            query_response = testcases.generate_dns_query(q_options=query)
-            results_per_software.append(query_response)
+        # Assign this query a name
+        query_name = "_".join([query_combo[i] for i in query_combo if query_combo[i]]).replace(".dnssoftver.com", "")
+        query = {
+                "query_name": query_name,
+                "software": software_to_fingerprint,
+                "ip": ip_to_fingerprint,
+                "query_options": query_combo
+            }
+        query_response = testcases.generate_dns_query(q_options=query)
+        results_per_software.append(query_response)
     
     return results_per_software
 
