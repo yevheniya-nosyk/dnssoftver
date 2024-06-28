@@ -21,6 +21,7 @@ import argparse
 import logging
 import docker
 import dotenv
+import scan
 import time
 import json
 import csv
@@ -133,12 +134,32 @@ def execute_queries_all(software_to_fingerprint,ip_to_fingerprint):
     
     return results_per_software
 
+def execute_queries_important(software_to_fingerprint,ip_to_fingerprint):
+    """Generate all the query combinations and only execute important ones"""
+
+    results_per_software = list()
+    for query_combo in (dict(zip(testcases.query_options.keys(), values)) for values in itertools.product(*testcases.query_options.values())):
+        # Assign this query a name
+        query_name = "_".join([query_combo[i] for i in query_combo if query_combo[i]]).replace(".dnssoftver.com", "")
+        if query_name in testcases_important:
+            query = {
+                    "query_name": query_name,
+                    "software": software_to_fingerprint,
+                    "ip": ip_to_fingerprint,
+                    "query_options": query_combo
+                }
+            query_response = testcases.generate_dns_query(q_options=query)
+            results_per_software.append(query_response)
+    
+    return results_per_software
+
 
 if __name__ == '__main__':
 
     # Parse command-line arguments
     parser = argparse.ArgumentParser()
     parser.add_argument('-r', '--repeats', required=True, default=10, type=int)
+    parser.add_argument('-g', '--granularity', required=False, choices=["vendor", "major", "minor", "build"], type=str, help="The fingerprinting granularity")
     args = parser.parse_args()
 
     # Get the working directory
@@ -199,8 +220,13 @@ if __name__ == '__main__':
                 targets.append(("windows-server:2016",os.getenv("WS_IP_2016")))
 
             # Execute queries and store results inside the results list
-            with multiprocessing.pool.ThreadPool(len(targets)) as p:
-                results_batch = p.starmap(execute_queries_all, targets)
+            if args.granularity:
+                testcases_important = scan.get_testcases(filename=f"{work_dir}/data/queries/queries_{args.granularity}.txt")
+                with multiprocessing.pool.ThreadPool(len(targets)) as p:
+                    results_batch = p.starmap(execute_queries_important, targets)
+            else:
+                with multiprocessing.pool.ThreadPool(len(targets)) as p:
+                    results_batch = p.starmap(execute_queries_all, targets)
 
             # Write the batch result to the main results dictionnary
             for software in results_batch:
@@ -211,8 +237,13 @@ if __name__ == '__main__':
             with multiprocessing.Pool(15) as p:
                 p.map(remove_container,containers)
 
+        # Generate the signature filename
+        if args.granularity:
+            signatures_file = f"{work_dir}/signatures/signatures_{args.granularity}.json"
+        else:
+            signatures_file = f"{work_dir}/signatures/signatures_all.json"
         # Save the results after every round
-        with open(f"{work_dir}/signatures/signatures_all.json", "w") as f: 
+        with open(signatures_file, "w") as f: 
             for result in results:
                 f.write(f"{json.dumps({result:results[result]})}\n")
 

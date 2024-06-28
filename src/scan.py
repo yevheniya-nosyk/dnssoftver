@@ -147,7 +147,7 @@ if __name__ == '__main__':
     logging.basicConfig(filename=f"{work_dir}/dnssoftver.log", level=logging.WARNING, format='%(asctime)s %(name)s %(processName)s %(threadName)s %(levelname)s:%(message)s')
 
     # Depending on the granularity chosen, load the corresponding model pickle
-    decision_tree = load_model(model_file=f"{work_dir}/data/models/model_{args.granularity}.pkl")
+    decision_tree = load_model(model_file=f"{work_dir}/data/models_final/model_{args.granularity}.pkl")
 
     # Get the names of the testcases that were used to build the tree
     testcase_names = get_testcases(filename=f"{work_dir}/data/queries/queries_{args.granularity}.txt")

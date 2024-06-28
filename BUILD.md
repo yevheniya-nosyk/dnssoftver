@@ -76,7 +76,11 @@ $ docker stop <container_id> && docker rm <container_id>
 $ docker rmi <your_image_name>
 ```
 
-## Signature generation
+## Step 1: Do all the test cases
+
+We first execute all the testcases to understand which ones result in important features.
+
+### Signature generation
 
 The script below builds docker images, starts containers in their own network, queries resolvers, processes the responses, generates signatures, and cleans up. Run it:
 
@@ -84,12 +88,28 @@ The script below builds docker images, starts containers in their own network, q
 $ python3 src/fingerprint.py --repeats <number_of_times_to_repeat_tests>
 ```
 
-The signatures are stored in `signatures/signatures_[all,minor].json`.
+The signatures are stored in `signatures/signatures_all.json`.
 
-## Classification
+### Classification
 
 We address the classification problem using decision trees built with `scikit-learn`. The following script builds models and saves the text representation of trees to `trees/` and the summary to `models`:
 
 ```bash
 $ python3 src/build_models.py --granularity [vendor,major,minor,build]
+```
+
+## Step 2: Do important testcases only
+
+Execute only important testcases and recompute the models.
+
+### Signature generation
+
+```bash
+python3 src/fingerprint.py --repeats <number_of_times_to_repeat_tests> --granularity [vendor,major,minor,build]
+```
+
+### Classification
+
+```bash
+$ python3 src/build_models.py --granularity [vendor,major,minor,build] --is_final
 ```

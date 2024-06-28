@@ -198,6 +198,7 @@ if __name__ == '__main__':
 
     # Parse command-line arguments
     parser = argparse.ArgumentParser()
+    parser.add_argument('-f', '--is_final', action='store_true', help="Whether the final models are built or not")
     parser.add_argument('-g', '--granularity', required=True, choices=["vendor", "major", "minor", "build"], type=str, help="The fingerprinting granularity")
     args = parser.parse_args()
 
@@ -205,7 +206,10 @@ if __name__ == '__main__':
     work_dir = get_work_dir()
 
     # Read the input file with test results and save it as one entry per software per run
-    input_data = read_input_file(filename=f"{work_dir}/signatures/signatures_all.json", granularity=args.granularity)
+    if args.is_final:
+        input_data = read_input_file(filename=f"{work_dir}/signatures/signatures_{args.granularity}.json", granularity=args.granularity)
+    else:
+        input_data = read_input_file(filename=f"{work_dir}/signatures/signatures_all.json", granularity=args.granularity)
 
     # Some signatures can correspond to multiple labels
     # However, in this case the decision tree will not work correctly
@@ -216,4 +220,7 @@ if __name__ == '__main__':
     input_data_df = data_to_df(data_merged=input_data_merged_labels)
 
     # Create the model
-    create_model(data=input_data_df, tree_file=f"{work_dir}/data/trees/tree_{args.granularity}.txt", performance_file=f"{work_dir}/data/models/performance_{args.granularity}.txt", model_file=f"{work_dir}/data/models/model_{args.granularity}.pkl", testcase_file=f"{work_dir}/data/queries/queries_{args.granularity}.txt")
+    if args.is_final:
+        create_model(data=input_data_df, tree_file=f"{work_dir}/data/trees_final/tree_{args.granularity}.txt", performance_file=f"{work_dir}/data/models_final/performance_{args.granularity}.txt", model_file=f"{work_dir}/data/models_final/model_{args.granularity}.pkl", testcase_file=f"{work_dir}/data/queries_final/queries_{args.granularity}.txt")
+    else:
+        create_model(data=input_data_df, tree_file=f"{work_dir}/data/trees/tree_{args.granularity}.txt", performance_file=f"{work_dir}/data/models/performance_{args.granularity}.txt", model_file=f"{work_dir}/data/models/model_{args.granularity}.pkl", testcase_file=f"{work_dir}/data/queries/queries_{args.granularity}.txt")
