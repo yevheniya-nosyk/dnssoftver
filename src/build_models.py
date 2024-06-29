@@ -21,6 +21,7 @@ import argparse
 import sklearn
 import pickle
 import json
+import bz2
 import os
 
 # Ignore the Pandas DeprecationWarning
@@ -38,7 +39,7 @@ def read_input_file(filename, granularity):
 
     data = list()
 
-    with open(filename, "r") as f:
+    with bz2.open(filename, "rb") as f:
         for line in f:
             # Load the entry
             entry = json.loads(line)
@@ -207,9 +208,9 @@ if __name__ == '__main__':
 
     # Read the input file with test results and save it as one entry per software per run
     if args.is_final:
-        input_data = read_input_file(filename=f"{work_dir}/signatures/signatures_{args.granularity}.json", granularity=args.granularity)
+        input_data = read_input_file(filename=f"{work_dir}/signatures/signatures_{args.granularity}.json.bz2", granularity=args.granularity)
     else:
-        input_data = read_input_file(filename=f"{work_dir}/signatures/signatures_all.json", granularity=args.granularity)
+        input_data = read_input_file(filename=f"{work_dir}/signatures/signatures_all.json.bz2", granularity=args.granularity)
 
     # Some signatures can correspond to multiple labels
     # However, in this case the decision tree will not work correctly

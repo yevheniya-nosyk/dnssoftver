@@ -25,6 +25,7 @@ import scan
 import time
 import json
 import csv
+import bz2
 import os 
 
 def get_work_dir():
@@ -239,13 +240,13 @@ if __name__ == '__main__':
 
         # Generate the signature filename
         if args.granularity:
-            signatures_file = f"{work_dir}/signatures/signatures_{args.granularity}.json"
+            signatures_file = f"{work_dir}/signatures/signatures_{args.granularity}.json.bz2"
         else:
-            signatures_file = f"{work_dir}/signatures/signatures_all.json"
+            signatures_file = f"{work_dir}/signatures/signatures_all.json.bz2"
         # Save the results after every round
-        with open(signatures_file, "w") as f: 
+        with bz2.open(signatures_file, "wb") as f: 
             for result in results:
-                f.write(f"{json.dumps({result:results[result]})}\n")
+                f.write(f"{json.dumps({result:results[result]})}\n".encode())
 
         repeats -= 1
 

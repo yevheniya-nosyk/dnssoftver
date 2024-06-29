@@ -88,7 +88,7 @@ The script below builds docker images, starts containers in their own network, q
 $ python3 src/fingerprint.py --repeats <number_of_times_to_repeat_tests>
 ```
 
-The signatures are stored in `signatures/signatures_all.json`.
+The signatures are stored in `signatures/signatures_all.json.bz2`.
 
 ### Classification
 
