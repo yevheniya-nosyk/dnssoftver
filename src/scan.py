@@ -13,6 +13,7 @@
 # limitations under the License.
 
 import multiprocessing
+import build_models
 import collections
 import testcases
 import ipaddress
@@ -20,7 +21,6 @@ import itertools
 import argparse
 import warnings
 import logging
-import pickle
 import json
 import os
 
@@ -126,6 +126,21 @@ def append_result(filename,data):
             result = {"ip": entry[0], "versions": entry[1].split("|")}
             f.write(f"{json.dumps(result)}\n")
 
+def build_decision_tree(granularity):
+    """Build the decision tree for the desired granularity"""
+
+    input_data = build_models.read_input_file(filename=f"{work_dir}/data/signatures/signatures_{granularity }.json.bz2", granularity=granularity)
+    # Some signatures can correspond to multiple labels
+    # However, in this case the decision tree will not work correctly
+    # So, we need to merge those labels
+    input_data_merged_labels = build_models.merge_labels(data_raw=input_data)
+    # Load the processed input dataset to a DataFrame to be then passed to the classifier
+    input_data_df = build_models.data_to_df(data_merged=input_data_merged_labels)
+    # Create the model
+    tree = build_models.create_model(data=input_data_df, testcase_file=None, print_stats=False)
+
+    return tree
+
 
 if __name__ == '__main__':
 
@@ -146,8 +161,8 @@ if __name__ == '__main__':
     # Configure logging
     logging.basicConfig(filename=f"{work_dir}/dnssoftver.log", level=logging.WARNING, format='%(asctime)s %(name)s %(processName)s %(threadName)s %(levelname)s:%(message)s')
 
-    # Depending on the granularity chosen, load the corresponding model pickle
-    decision_tree = load_model(model_file=f"{work_dir}/data/models_final/model_{args.granularity}.pkl")
+    # Build the decision tree
+    decision_tree = build_decision_tree(granularity=args.granularity)
 
     # Get the names of the testcases that were used to build the tree
     testcase_names = get_testcases(filename=f"{work_dir}/data/queries/queries_{args.granularity}.txt")

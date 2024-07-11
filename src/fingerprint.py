@@ -14,6 +14,7 @@
 
 import multiprocessing.pool
 import multiprocessing
+import build_models
 import collections
 import testcases
 import itertools
@@ -154,6 +155,23 @@ def execute_queries_important(software_to_fingerprint,ip_to_fingerprint):
     
     return results_per_software
 
+def get_important_testcases():
+    """Analyze the first scan to find important cases for each granularity type"""
+    
+    # We build one model per granularity
+    granularities = ["vendor", "major", "minor", "build"]
+
+    for granularity in granularities:
+        input_data = build_models.read_input_file(filename=f"{work_dir}/signatures/signatures_all.json.bz2", granularity=granularity)
+        # Some signatures can correspond to multiple labels
+        # However, in this case the decision tree will not work correctly
+        # So, we need to merge those labels
+        input_data_merged_labels = build_models.merge_labels(data_raw=input_data)
+        # Load the processed input dataset to a DataFrame to be then passed to the classifier
+        input_data_df = build_models.data_to_df(data_merged=input_data_merged_labels)
+        # Create the model
+        build_models.create_model(data=input_data_df, testcase_file=f"{work_dir}/data/queries/queries_{granularity}.txt", print_stats=True)
+
 
 if __name__ == '__main__':
 
@@ -240,7 +258,7 @@ if __name__ == '__main__':
 
         # Generate the signature filename
         if args.granularity:
-            signatures_file = f"{work_dir}/signatures/signatures_{args.granularity}.json.bz2"
+            signatures_file = f"{work_dir}/data/signatures/signatures_{args.granularity}.json.bz2"
         else:
             signatures_file = f"{work_dir}/signatures/signatures_all.json.bz2"
         # Save the results after every round
@@ -252,3 +270,8 @@ if __name__ == '__main__':
 
     # Remove the Docker network
     fpdns_network.remove()
+
+    # Build the intermediary models after the first round
+    # These will only be used to get important features (testcases)
+    if not args.granularity:
+        get_important_testcases()

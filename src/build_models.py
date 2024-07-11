@@ -123,7 +123,7 @@ def data_to_df(data_merged):
     return df_one_hot
 
 
-def create_model(data,tree_file, performance_file, model_file, testcase_file):
+def create_model(data, testcase_file=None, print_stats = False):
     """Create a Decision tree"""
 
     # Split the dataset into features and target variables
@@ -139,27 +139,6 @@ def create_model(data,tree_file, performance_file, model_file, testcase_file):
     # Predict the response for test dataset
     y_pred = clf.predict(X_test)
 
-    # Pickle the model to use it during the scanning stage
-    with open(model_file, "wb") as f:
-        pickle.dump(clf, f)
-
-    # Print the decision tree, but make feature names more human-readable
-    features_one_hot = data.columns.difference(["label"], sort=False).tolist()
-    # Here we remove all the brackets and join by pipes
-    features_short = list()
-    # In this list we only keep testcase names
-    features_testcases = list()
-    for i in features_one_hot:
-        features_short.append(i.replace("'","").replace("), (","_").replace(", ","-").replace("_((","---").replace("))","").replace("),)",""))
-        features_testcases.append(i[:i.index("(")][:-1])
-
-    # Print the tree in a text form with feature names in a short format
-    text_representation = sklearn.tree.export_text(clf,feature_names=features_short, max_depth=len(features_one_hot))
-
-    # Also save to the text file
-    with open(tree_file, "w") as f:
-        f.write(text_representation)
-
     # Describe the model performance
     model_accuracy = sklearn.metrics.accuracy_score(y_test, y_pred)
 
@@ -174,54 +153,26 @@ def create_model(data,tree_file, performance_file, model_file, testcase_file):
     labels_individual = [i for i in labels_all if "|" not in i]
     versions_all = set(j for i in labels_all for j in i.split("|"))
 
-    # Write these metrics to a file
-    with open(performance_file, "w") as f:
-        f.write(f"Accuracy: {model_accuracy}\n")
-        f.write(f"---\n")
-        f.write(f"The total number of features: {feature_importances.shape[0]}\n")
-        f.write(f"  Important features: {feature_importances[feature_importances['importance'] != 0].shape[0]}\n")
-        f.write(f"  Not important features: {feature_importances[feature_importances['importance'] == 0].shape[0]}\n")
-        f.write(f"---\n")
-        f.write(f"The total number of testcases: {len(testcases_all)}\n")
-        f.write(f"  Important testcases: {len(testcases_important)}\n")
-        f.write(f"  Not important testcases: {len(testcases_not_important_unique)}\n")
-        f.write(f"---\n")
-        f.write(f"All versions: {len(versions_all)}\n")
-        f.write(f"  Individual versions: {len(labels_individual)}\n")
+    # Print these metrics
+    if print_stats:
+        print(f"Accuracy: {model_accuracy}")
+        print(f"---")
+        print(f"The total number of features: {feature_importances.shape[0]}")
+        print(f"  Important features: {feature_importances[feature_importances['importance'] != 0].shape[0]}")
+        print(f"  Not important features: {feature_importances[feature_importances['importance'] == 0].shape[0]}")
+        print(f"---")
+        print(f"The total number of testcases: {len(testcases_all)}")
+        print(f"  Important testcases: {len(testcases_important)}")
+        print(f"  Not important testcases: {len(testcases_not_important_unique)}")
+        print(f"---")
+        print(f"All versions: {len(versions_all)}")
+        print(f"  Individual versions: {len(labels_individual)}")
 
     # Write testcase names that were used to build trees
-    with open(testcase_file, "w") as f:
-        for testcase in sorted(testcases_important):
-            f.write(f"{testcase}\n")
+    if testcase_file:
+        with open(testcase_file, "w") as f:
+            for testcase in sorted(testcases_important):
+                f.write(f"{testcase}\n")
 
-
-if __name__ == '__main__':
-
-    # Parse command-line arguments
-    parser = argparse.ArgumentParser()
-    parser.add_argument('-f', '--is_final', action='store_true', help="Whether the final models are built or not")
-    parser.add_argument('-g', '--granularity', required=True, choices=["vendor", "major", "minor", "build"], type=str, help="The fingerprinting granularity")
-    args = parser.parse_args()
-
-    # Get the working directory
-    work_dir = get_work_dir()
-
-    # Read the input file with test results and save it as one entry per software per run
-    if args.is_final:
-        input_data = read_input_file(filename=f"{work_dir}/signatures/signatures_{args.granularity}.json.bz2", granularity=args.granularity)
-    else:
-        input_data = read_input_file(filename=f"{work_dir}/signatures/signatures_all.json.bz2", granularity=args.granularity)
-
-    # Some signatures can correspond to multiple labels
-    # However, in this case the decision tree will not work correctly
-    # So, we need to merge those labels
-    input_data_merged_labels = merge_labels(data_raw=input_data)
-
-    # Load the processed input dataset to a DataFrame to be then passed to the classifier
-    input_data_df = data_to_df(data_merged=input_data_merged_labels)
-
-    # Create the model
-    if args.is_final:
-        create_model(data=input_data_df, tree_file=f"{work_dir}/data/trees_final/tree_{args.granularity}.txt", performance_file=f"{work_dir}/data/models_final/performance_{args.granularity}.txt", model_file=f"{work_dir}/data/models_final/model_{args.granularity}.pkl", testcase_file=f"{work_dir}/data/queries_final/queries_{args.granularity}.txt")
-    else:
-        create_model(data=input_data_df, tree_file=f"{work_dir}/data/trees/tree_{args.granularity}.txt", performance_file=f"{work_dir}/data/models/performance_{args.granularity}.txt", model_file=f"{work_dir}/data/models/model_{args.granularity}.pkl", testcase_file=f"{work_dir}/data/queries/queries_{args.granularity}.txt")
+    # Return the model
+    return clf
