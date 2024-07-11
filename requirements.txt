@@ -1,4 +1,4 @@
-docker==7.0.0
+docker==7.1.0
 python-dotenv==1.0.0
 dnspython==2.5.0
 scikit-learn==1.4.0
