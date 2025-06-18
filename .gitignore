@@ -1,5 +1,0 @@
-.env
-.venv*
-*.log
-__pycache__
-/signatures
