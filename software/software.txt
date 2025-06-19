@@ -196,3 +196,11 @@ bind9/9.21/9.21.6
 bind9/9.21/9.21.7
 bind9/9.21/9.21.8
 bind9/9.21/9.21.9
+knot-resolver/6.0/6.0.7
+knot-resolver/6.0/6.0.8
+knot-resolver/6.0/6.0.9
+knot-resolver/6.0/6.0.10
+knot-resolver/6.0/6.0.11
+knot-resolver/6.0/6.0.12
+knot-resolver/6.0/6.0.13
+knot-resolver/6.0/6.0.14
