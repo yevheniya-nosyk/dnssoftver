@@ -43,7 +43,6 @@ ENV LD_LIBRARY_PATH=/tmp/knot/lib
 RUN git clone --recursive https://gitlab.nic.cz/knot/knot-resolver.git && \
     cd knot-resolver && \
     git checkout tags/v${SOFTWARE_VERSION} && \
-    # git submodule update --init --recursive && \
     PKG_CONFIG_PATH="/tmp/knot/lib/pkgconfig" && \
     CFLAGS="-I/tmp/knot/include" \
     LDFLAGS="-L/tmp/knot/lib" \
