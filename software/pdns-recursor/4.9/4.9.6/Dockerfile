@@ -22,7 +22,7 @@ ENV DEBIAN_FRONTEND=noninteractive
 RUN apt-get update && apt-get install -y \
     wget libboost-dev libboost-filesystem-dev libboost-serialization-dev \
     libboost-system-dev libboost-thread-dev libboost-context-dev \
-    libboost-test-dev libssl-dev libboost-test-dev g++ make pkg-config \
+    libboost-test-dev libssl-dev g++ make pkg-config \
     libluajit-5.1-dev cargo && \
     rm -rf /var/lib/apt/lists/*
 
