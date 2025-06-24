@@ -236,6 +236,11 @@ pdns-recursor/4.5/4.5.9
 pdns-recursor/4.5/4.5.10
 pdns-recursor/4.5/4.5.11
 pdns-recursor/4.5/4.5.12
+pdns-recursor/4.6/4.6.2
+pdns-recursor/4.6/4.6.3
+pdns-recursor/4.6/4.6.4
+pdns-recursor/4.6/4.6.5
+pdns-recursor/4.6/4.6.6
 pdns-recursor/4.7/4.7.0
 pdns-recursor/4.7/4.7.1
 pdns-recursor/4.7/4.7.2
