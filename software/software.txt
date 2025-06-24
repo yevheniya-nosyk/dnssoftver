@@ -225,6 +225,17 @@ knot-resolver/6.0/6.0.11
 knot-resolver/6.0/6.0.12
 knot-resolver/6.0/6.0.13
 knot-resolver/6.0/6.0.14
+pdns-recursor/4.5/4.5.1
+pdns-recursor/4.5/4.5.2
+pdns-recursor/4.5/4.5.4
+pdns-recursor/4.5/4.5.5
+pdns-recursor/4.5/4.5.6
+pdns-recursor/4.5/4.5.7
+pdns-recursor/4.5/4.5.8
+pdns-recursor/4.5/4.5.9
+pdns-recursor/4.5/4.5.10
+pdns-recursor/4.5/4.5.11
+pdns-recursor/4.5/4.5.12
 pdns-recursor/4.8/4.8.0
 pdns-recursor/4.8/4.8.1
 pdns-recursor/4.8/4.8.2
