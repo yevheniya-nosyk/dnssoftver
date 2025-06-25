@@ -327,6 +327,15 @@ pdns-recursor/5.1/5.1.4
 pdns-recursor/5.2/5.2.0
 pdns-recursor/5.2/5.2.1
 pdns-recursor/5.2/5.2.2
+unbound/1.6/1.6.0
+unbound/1.6/1.6.1
+unbound/1.6/1.6.2
+unbound/1.6/1.6.3
+unbound/1.6/1.6.4
+unbound/1.6/1.6.5
+unbound/1.6/1.6.6
+unbound/1.6/1.6.7
+unbound/1.6/1.6.8
 unbound/1.7/1.7.0
 unbound/1.7/1.7.1
 unbound/1.7/1.7.2
