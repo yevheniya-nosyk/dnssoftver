@@ -327,6 +327,8 @@ pdns-recursor/5.1/5.1.4
 pdns-recursor/5.2/5.2.0
 pdns-recursor/5.2/5.2.1
 pdns-recursor/5.2/5.2.2
+technitium/12.2/12.2
+technitium/12.2/12.2.1
 technitium/13.0/13.0
 technitium/13.0/13.0.1
 technitium/13.0/13.0.2
