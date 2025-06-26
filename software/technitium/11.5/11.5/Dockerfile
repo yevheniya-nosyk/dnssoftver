@@ -19,7 +19,7 @@ ENV DEBIAN_FRONTEND=noninteractive
 
 # Install all the required packages
 RUN apt-get update && \
-    apt-get install -y wget curl systemd dotnet8 tcpdump && \
+    apt-get install -y wget curl systemd dotnet8 && \
     rm -rf /var/lib/apt/lists/*
 
 # Download the code
