@@ -1,8 +1,16 @@
 # Build from stratch
 
-This project was built on Debian GNU/Linux 12 (bookworm).
+This project was built on Debian GNU/Linux 12 (bookworm) using Python 3.11.2.
 
 ## Installation
+
+### Virtual environment
+
+```bash
+$ python3 -m virtualenv -p python3.11 .venv
+$ source .venv/bin/activate
+$ pip3 install -r requirements.txt
+```
 
 ### Docker
 
@@ -66,4 +74,12 @@ $ dig @127.0.0.1 -p 5353 A google.com +short
 $ dig @127.0.0.1 -p 5353 CH TXT version.bind +short
 # Kill the container
 $ docker rm -f <container_id>
+```
+
+## Run
+
+First, we need to generate some queries/responses that will later be used to create signatures. The script below builds all the Docker containers found in `software/software.txt`:
+
+```bash
+$ python3 src/generate_test_data.py
 ```
