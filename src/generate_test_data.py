@@ -13,6 +13,7 @@
 # limitations under the License.
 
 from pathlib import Path
+import logging
 
 def get_work_dir():
     """Find the path to the project's work directory"""
@@ -28,3 +29,10 @@ if __name__ == "__main__":
 
     # Get the work directory of this project
     work_dir = get_work_dir()
+
+    # Configure logging
+    logging.basicConfig(
+        filename=str(work_dir / "log.log"),
+        level=logging.INFO,
+        format="%(asctime)s [%(levelname)s] %(message)s"
+    )
