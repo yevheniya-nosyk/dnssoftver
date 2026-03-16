@@ -4,14 +4,14 @@ A tool to fingerprint DNS resolver software.
 
 All the supported versions are in `SOFTWARE.md`.
 
-## 🚧 Rewrite in progress (June 2025)
+## Rewrite in progress (March 2026)
 
 This project is undergoing a major rewrite inside the `rewrite` branch. The goals:
 
-- Reconsider the use of decision trees and ML altogether 
-- Optimize the software Docker images
-- Keep truly important testcases
-- Clean up the code
+- [x] Software: decrease the size of Docker images, do not build alpha and beta releases.
+- [ ] Testcases: remove noisy ones.
+- [ ] Logic: do signature-based fingerprinting instead of ML.
+- [ ] Code cleanup.
 
 ## Usage
 
