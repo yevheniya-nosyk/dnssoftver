@@ -14,6 +14,7 @@
 
 from pathlib import Path
 import logging
+import docker
 
 def get_work_dir():
     """Find the path to the project's work directory"""
@@ -23,6 +24,42 @@ def get_work_dir():
     for parent in path.parents:
         if (parent / ".git").exists():
             return parent
+
+def get_resolver_images(dir,client):
+    """Build resolver images or get existing ones"""
+
+    # The list of resolver images
+    images = list()
+    # Get the list of images that exist already on the system
+    images_local = [image.tags[0] for image in client.images.list() if image.tags]
+
+    # Read the list of images to build
+    with open(dir / "software" / "software.txt", "r") as f:
+        for software in f:
+            # Extract the vendor and version information
+            vendor, version_major, version_minor = software.strip().split("/")
+            logging.info("Processing %s-%s", vendor, version_minor)
+            # Construct the image tag
+            image_tag = f"dnssoftver-{vendor}-{version_minor}:latest"
+            # Build if not already done
+            if image_tag not in images_local:
+                logging.info("Building %s-%s", vendor, version_minor)
+                # Path to the Dockerfile
+                dockerfile_dir = dir / "software" / vendor / version_major / version_minor
+                # Ensure Dockerfile exists
+                if not (dockerfile_dir / "Dockerfile").exists():
+                    logging.error("Could not find a Dockerfile for %s-%s", vendor, version_minor)
+                    continue
+                # Ensure to remove the intermediate containers and dangling images while building
+                docker_client.images.build(path=str(dockerfile_dir), tag=image_tag, rm=True)
+                client.images.prune(filters={'dangling': True})
+                logging.info("Built %s-%s", vendor, version_minor)
+            # Image processed
+            images.append(image_tag)
+            logging.info("Processed %s-%s", vendor, version_minor)
+
+    # Return the list of resolver images
+    return images
 
 
 if __name__ == "__main__":
@@ -36,3 +73,9 @@ if __name__ == "__main__":
         level=logging.INFO,
         format="%(asctime)s [%(levelname)s] %(message)s"
     )
+
+    # Create a Docker client
+    docker_client = docker.from_env()
+
+    # Build resolver images
+    resolver_images = get_resolver_images(dir=work_dir,client=docker_client)
