@@ -21,7 +21,7 @@ ENV DEBIAN_FRONTEND=noninteractive
 # Install all the required packages to build
 RUN apt-get update && apt-get install -y \
     wget xz-utils build-essential libnghttp2-dev libcap-dev \
-    libssl-dev libuv1-dev perl pkg-config && \
+    libssl-dev libuv1-dev liburcu-dev perl pkg-config && \
     rm -rf /var/lib/apt/lists/*
 
 # Download the source code and build
@@ -38,7 +38,7 @@ ENV DEBIAN_FRONTEND=noninteractive
 
 # Only install runtime dependencies
 RUN apt-get update && apt-get install -y \
-    libnghttp2-14 libcap2 libssl1.1 libuv1 && \
+    libnghttp2-14 libcap2 libssl1.1 libuv1 liburcu6 && \
     rm -rf /var/lib/apt/lists/*
 
 # Copy binaries from builder
